@@ -79,7 +79,7 @@ module.exports = (db) => {
 		let conn
 		try {
 			conn = await db.getConnection()
-			const result = await conn.query("SELECT id, password FROM users WHERE pseudo=?",[body.pseudo])
+			const result = await conn.query("SELECT id, pseudo, image, password FROM users WHERE pseudo=?",[body.pseudo])
 			
 			//check if user exist
 			if (result.length == 0){
@@ -110,7 +110,9 @@ module.exports = (db) => {
 			//send it
 			return res.json({
 				error:null,
-				token: tokens.accessToken
+				token: tokens.accessToken,
+				pseudo:user.pseudo,
+				image: user.image
 			})
 		} catch (err) {
 			console.log(err)
@@ -222,7 +224,29 @@ module.exports = (db) => {
 	})
 
 	route.post("/logout",require("../middleware/token"),async (req,res)=>{
-		
+		const token = req.token
+		let conn
+		try {
+			//update db
+			conn = await db.getConnection()
+			await conn.query("UPDATE users SET refreshToken='' WHERE id=?",[token.id])
+
+			//set cookie
+			res.cookie("refreshToken", "", res.cookieSettings)
+		} catch(err){
+			console.log(err)
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		} finally {
+			if (conn)
+				conn.release()
+		}
+
+		return res.json({
+			error:null
+		})
 	})
 
 	return route

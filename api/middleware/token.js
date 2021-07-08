@@ -23,7 +23,7 @@ module.exports = (req,res,next) => {
 
 		if (err.name == "TokenExpiredError") {
 			return res.status(401).json({
-				error: "Refresh token is expired",
+				error: "Token is expired",
 				errorCode: "EXPIRED_TOKEN"
 			})
 		}

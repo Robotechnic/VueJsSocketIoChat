@@ -5,18 +5,34 @@ module.exports = (req,res,next) => {
 	if (!body.token){ //check if token exist
 		res.status(422).json({
 			error:"Field 'token' required",
-			code:"TOKEN_FIELD_REQUIRED"
+			code:"EMPTY_FIELDS"
 		})
 		return
 	}
 
 	//check validity of token
-	if (!jwt.verify(body.token, process.env.TOKEN_SECRET)){
-		res.status(401).json({
-			error:"Invalid token, it may be expired or invalid",
-			code:"INVALID_TOKEN"
+	try {
+		jwt.verify(body.token, process.env.TOKEN_SECRET)
+	} catch (err) {
+		if (err.name == "JsonWebTokenError") {
+			return res.status(401).json({
+				error: "Token is invalid",
+				errorCode: "INVALID_TOKEN"
+			})
+		}
+
+		if (err.name == "TokenExpiredError") {
+			return res.status(401).json({
+				error: "Refresh token is expired",
+				errorCode: "EXPIRED_TOKEN"
+			})
+		}
+
+		console.log(err) //log error only if it's unknown
+		return res.status(500).json({
+			error: "Internal error",
+			code: "INTERNAL"
 		})
-		return
 	}
 	
 	const token = jwt.decode(body.token)
@@ -25,7 +41,7 @@ module.exports = (req,res,next) => {
 	if (token.ip != req.ip){
 		res.status(401).json({
 			error: "Invalid ip, this token has different ip than your",
-			code: "INVALID_IP"
+			code: "INVALID_TOKEN_IP"
 		})
 		return
 	}

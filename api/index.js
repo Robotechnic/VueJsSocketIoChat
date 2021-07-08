@@ -1,7 +1,9 @@
 const express = require("express")
 const app = express()
 
-require("dotenv").config()
+require("dotenv").config({
+	path: __dirname +"/.env"
+})
 
 const helmet = require("helmet")
 app.use(helmet())
@@ -23,12 +25,22 @@ app.use((req, res, next)=>{
 })
 
 const cookieParser = require("cookie-parser")
-app.use(cookieParser(process.env.COOKIE_SECRET,
-{
-	httpOnly: true,
-	sameSite: true,
-	secure: process.env.production
-}))
+app.use(cookieParser())
+app.use((req,res,next)=>{
+	res.cookieSettings = {
+		httpOnly: true,
+		sameSite: true,
+		secure: process.env.production ?? false
+	}
+	next()
+})
+
+if (process.env.ORIGIN){
+	const cors = require("cors")
+	app.use(cors({
+		origin: process.env.ORIGIN
+	}))
+}
 
 const mariadb = require("mariadb")
 const db = mariadb.createPool({
@@ -42,7 +54,23 @@ const db = mariadb.createPool({
 app.get("/",(req,res)=>{
 	res.json({
 		apiVersion:1.0,
-		author:"Robotechnic"
+		author:"Robotechnic",
+		errorCodes: {
+			"INTERNAL": "Some internal error appened",
+			"EMPTY_FIELDS":"The request require some field which are not provided",
+			"INVALID_FIELD_FIELDNAME":"The content of FIELDNAME is not valid",
+			"PSEUDO_EXIST":"Provided pseudo alrealy exist",
+			"USER_NOT_EXIST":"Selected user doesn't exist",
+			"WRONG_PASSWORD":"Password is wrong",
+			
+			"NO_REFRESH_TOKEN":"There is no refresh token in cookie",
+			"INVALID_REFRESH_TOKEN":"The refresh token has invalid signature",
+			"EXPIRED_REFRESH_TOKEN":"The refresh token is expired",
+
+			"INVALID_TOKEN":"Current access token is invalid",
+			"EXPIRED_TOKEN":"Current token is outdated",
+			"INVALID_TOKEN_IP":"Ip stored in token is different than ip provided by user"
+		}
 	})
 })
 

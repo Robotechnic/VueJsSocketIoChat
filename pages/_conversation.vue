@@ -1,103 +1,170 @@
 <template>
 	<div class="chatContener">
 		<header>
-			<h1>NuxtCHat</h1>
+			<h1 class="header__title">NuxtCHat</h1>
 		</header>
 		<nav class="friends">
-
+			<h2 class="friends__title">Friends</h2>
+			<p v-if="friends.length == 0">You doesn't have any friends yet ;(</p>
+			<User v-for="friend, index in friends" v-else :key="index" :user="friend"/>
 		</nav>
 		<section v-if="!$route.params.conversation" class="homePresentation">
 			<h1>Home</h1>
-			<p v-if="logged && !waiting">Status : logged</p>
-			<p v-else-if="waiting">Status : waiting</p>
-			<p v-else>Status : not logged</p>
-			<p>Token : {{token}}</p>
-			<p>Timeout : {{timeout}}</p>
+			<p>Welcome to this beautifull chat</p>
+		</section>
 
-			<button @click="login">login</button>
-			<button @click="refresh">refresh</button>
-			<button @click="logout">logout</button>
+		<section v-else class="messageDisplay">
+			<p class="messageDisplay__start">This is the begining of this conversation.<br/>To start, you just need to type a message in the area on the bottom.</p>
+			<Message v-for="message,index in messageList" :key="index" :message="message"/>
 		</section>
 		
+		<MessageEditor class="editor"/>
 	</div>
 </template>
 
 <script>
-import Messages from "../components/messages.vue"
 export default {
-	components:[
-		Messages
-	],
 	data(){
 		return {
-			token:null,
-			logged:false,
-			waiting:false,
-			timeout:0
+			currentUser : {
+				id:0,
+				pseudo:"Robotechnic",
+				image:"/usersImages/default.png"
+			},
+			friends:[
+				{
+					id:1,
+					pseudo:"Hello",
+					image:"/usersImages/default.png",
+					status:1
+				},
+				{
+					id:2,
+					pseudo:"Never here",
+					image:"/usersImages/default.png",
+					status:0
+				}
+			],
+			messages:[
+				{
+					userId:1,
+					text:"Hello, I'm Hello, how are you?"
+				},
+				{
+					userId:-1,
+					text:"Hy, I'm fine and you"
+				},
+				{
+					userId:1,
+					text:"Fine too. Do you enjoy this chat?"
+				},
+				{
+					userId:-1,
+					text:"Yes of course"
+				},
+				{
+					userId:1,
+					text:"Hello, I'm Hello, how are you?"
+				},
+				{
+					userId:-1,
+					text:"Hy, I'm fine and you"
+				},
+				{
+					userId:1,
+					text:"Fine too. Do you enjoy this chat?"
+				},
+				{
+					userId:1,
+					text:"Yes of course"
+				}
+			]
+		}
+	},
+	computed: {
+		messageList(){ // get message list populated with user data
+			const result = []
+			
+			for (const i in this.messages){
+				result.push({
+					text:this.messages[i].text,
+					user:this.userFromId(this.messages[i].userId)
+				})
+			}
+			return result
 		}
 	},
 	methods:{
-		setNewTimeout(){
-				clearTimeout(this.timeout)
-				this.timeout = setTimeout(this.refresh,10000)
-		},
-		login(){
-			this.waiting = true
-			this.logged = false
-			fetch("http://localhost:8080/api/user/login",{
-				method:"POST",
-				headers:{
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					pseudo: "test",
-					password: "aA123456789@"
-				})
-			}).then(response=>response.json()).then(json=>{
-				console.log("Login")
-				console.log(json)
-				this.token = json.token
-				this.waiting = false
-				this.logged = true
-				this.setNewTimeout()
-			})
-		},
-		refresh(){
-			this.waiting = true
-			fetch("http://localhost:8080/api/user/refresh",{
-				method:"POST"
-			}).then(response=>response.json()).then(json=>{
-				console.log("Refresh")
-				console.log(json)
-				this.waiting = false
-
-				if (json.error){
-					console.log("Error, disconnect")
-					this.logged = false
-				} else {
-					this.token = json.token
-					this.setNewTimeout()
-				}
-			})
-		},
-		logout(){
-			console.log("logout")
-			this.waiting = true
-			clearTimeout(this.timeout)
-			fetch("http://localhost:8080/api/user/logout",{
-				method:"POST",
-				headers:{
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					token:this.token
-				})
-			}).then(response=>response.json()).then(json=>{
-				console.log(json)
-				this.waiting = false
-				this.logged = false
-			})
+		userFromId(id){	// get user data from his id
+			if (id === -1) return this.currentUser
+			else return this.friends.filter(user => user.id === id)
 		}
 	}
 }
 </script>
+
+
+<style lang="scss" scoped>
+@import "../assets/scss/colors";
+.chatContener {
+	display:grid;
+	grid-template-areas:"header header"
+						"friend main"
+						"friend editor";
+	gap:5px;
+	grid-template-columns: .2fr 1fr;
+	grid-template-rows: max-content 1fr max-content;
+	height:100vh;
+}
+
+header {
+	grid-area:header;
+	padding-left:20px;
+
+	.header__title {
+		margin:2px;
+	}
+}
+
+.friends {
+	grid-area:friend;
+	padding: 5px 10px;
+	background:lighten($color: $primaryColor, $amount: 5);
+	border-left:2px solid $secondaryColor;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+
+	&__title {
+		margin-bottom: 2px;
+		border-bottom: 1px solid $textColor;
+	}
+}
+
+.mainContent {
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+
+.homePresentation {
+	@extend .mainContent;
+	grid-area:main;
+	padding: 0px 15px;
+}
+
+.messageDisplay {
+	@extend .mainContent;
+	grid-area:main;
+	overflow-y: scroll;
+	background:lighten($color: $primaryColor, $amount: 5);
+
+	&__start {
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+}
+
+.editor {
+	grid-area:editor;
+}
+
+</style>

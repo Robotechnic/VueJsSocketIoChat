@@ -13,17 +13,20 @@
 			<p>Welcome to this beautifull chat</p>
 		</section>
 
-		<section v-else class="messageDisplay">
+		<section v-else class="messageDisplay" ref="messageDisplay">
 			<p class="messageDisplay__start">This is the begining of this conversation.<br/>To start, you just need to type a message in the area on the bottom.</p>
 			<Message v-for="message,index in messageList" :key="index" :message="message"/>
 		</section>
 		
-		<MessageEditor class="editor"/>
+		<MessageEditor class="editor" @send-message="addMessage"/>
 	</div>
 </template>
 
 <script>
 export default {
+	updated(){
+		this.$refs.messageDisplay.scrollTop = this.$refs.messageDisplay.scrollHeight
+	},
 	data(){
 		return {
 			currentUser : {
@@ -97,7 +100,16 @@ export default {
 	methods:{
 		userFromId(id){	// get user data from his id
 			if (id === -1) return this.currentUser
-			else return this.friends.filter(user => user.id === id)
+			else {
+				return this.friends.filter(user => user.id === id)[0]
+			}
+		},
+		addMessage(messageText){
+			console.log(messageText)
+			this.messages.push({
+				userId:-1,
+				text:messageText
+			})
 		}
 	}
 }
@@ -129,7 +141,7 @@ header {
 .friends {
 	grid-area:friend;
 	padding: 5px 10px;
-	background:lighten($color: $primaryColor, $amount: 5);
+	background:$elementsBackground;
 	border-left:2px solid $secondaryColor;
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
@@ -155,7 +167,7 @@ header {
 	@extend .mainContent;
 	grid-area:main;
 	overflow-y: scroll;
-	background:lighten($color: $primaryColor, $amount: 5);
+	background:$elementsBackground;
 
 	&__start {
 		margin-left: 20px;

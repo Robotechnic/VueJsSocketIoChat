@@ -2,6 +2,7 @@ const regex = require("../utils/regex")
 const {password, pseudo} = regex
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const escapeHTML = require("escape-html")
 const tokenGenerator = require("../utils/tokenGenerator")
 
 module.exports = (db) => {
@@ -24,6 +25,9 @@ module.exports = (db) => {
 				errorMessage: "The pseudo field lenght must be between 3 and 15 char long and can't contain <>\"_'=;()\/\\"
 			})
 		}
+
+		//escape pseudo spetial char
+		body.pseudo = escapeHTML(body.pseudo)
 
 		if (!password.test(body.password)) { //test is password is valid with regex
 			return res.status(422).json({

@@ -8,7 +8,7 @@ const tokenGenerator = require("../utils/tokenGenerator")
 module.exports = (db) => {
 	const route = require("express").Router()
 
-	route.post("/register",async (req,res)=>{
+	route.post("/signup",async (req,res)=>{
 		const body = req.body
 		if (!body.pseudo || !body.password){ //check if required fields are presents (pseudo and password)
 			return res.status(422).json({
@@ -62,7 +62,8 @@ module.exports = (db) => {
 			//for all others errors
 			console.log(err)
 			return res.status(500).json({
-				error:"Internal error"
+				error:"Internal error",
+				code: "INTERNAL"
 			})
 		} finally {
 			if (conn) //always release connection after using it
@@ -70,7 +71,7 @@ module.exports = (db) => {
 		}
 	})
 
-	route.post("/login",async (req, res) => {
+	route.post("/signin",async (req, res) => {
 		const body = req.body
 		if (!body.pseudo || !body.password) { //check if required fields are presents
 			return res.status(422).json({

@@ -1,7 +1,7 @@
 <template>
 	<div class="chatContener">
 		<header>
-			<h1 class="header__title">NuxtCHat</h1>
+			<h1 class="header__title">NuxtChat</h1>
 		</header>
 		<nav class="friends">
 			<h2 class="friends__title">Friends</h2>
@@ -13,7 +13,7 @@
 			<p>Welcome to this beautifull chat</p>
 		</section>
 
-		<section v-else class="messageDisplay" ref="messageDisplay">
+		<section v-else ref="messageDisplay" class="messageDisplay">
 			<p class="messageDisplay__start">This is the begining of this conversation.<br/>To start, you just need to type a message in the area on the bottom.</p>
 			<Message v-for="message,index in messageList" :key="index" :message="message"/>
 		</section>
@@ -24,9 +24,6 @@
 
 <script>
 export default {
-	updated(){
-		this.$refs.messageDisplay.scrollTop = this.$refs.messageDisplay.scrollHeight
-	},
 	data(){
 		return {
 			currentUser : {
@@ -97,6 +94,9 @@ export default {
 			return result
 		}
 	},
+	mounted(){
+		this.scrollToBottom()
+	},
 	methods:{
 		userFromId(id){	// get user data from his id
 			if (id === -1) return this.currentUser
@@ -105,11 +105,15 @@ export default {
 			}
 		},
 		addMessage(messageText){
-			console.log(messageText)
 			this.messages.push({
 				userId:-1,
 				text:messageText
 			})
+		},
+		scrollToBottom() {
+			if (this.$refs.messageDisplay){
+				this.$refs.messageDisplay.scrollTop = this.$refs.messageDisplay.scrollHeight
+			}
 		}
 	}
 }

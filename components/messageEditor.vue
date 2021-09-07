@@ -7,10 +7,6 @@
 <script>
 export default {
 	name:"Editor",
-	beforeMount(){
-		console.log("Ok")
-		this.setPlaceholder(this.receiver)
-	},
 	props:{
 		receiver:{
 			type:String,
@@ -25,6 +21,9 @@ export default {
 			this.setPlaceholder(newVal)
 		}
 	},
+	beforeMount(){
+		this.setPlaceholder(this.receiver)
+	},
 	methods:{
 		formater(event){
 			const target = event.target
@@ -32,11 +31,11 @@ export default {
 			// reset the input to set the placeholder
 			if (target.innerHTML === "<br>" || target.innerHTML === "<br/>"){
 				target.innerHTML = ""
-				return
+				// return
 			}
 
 			// run the formater
-			console.log("Ok")
+
 		},
 		sendMessage(event){
 			const target = event.target

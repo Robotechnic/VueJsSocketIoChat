@@ -23,12 +23,12 @@ body {
 /********************/
 button, input, textarea, select{
 	background-color: $inputBackground;
-	color:$inputColor;
+	color: $inputColor;
 	border: 1px solid $inputBorder;
 	padding: 8px 7px;
 	font-size: 16px;
 	box-sizing: border-box;
-	margin:2px;
+	margin: 2px 0px;
 	border-radius: 5px;
 	line-height: 1.5;
 
@@ -48,7 +48,7 @@ textarea {
 /*** BUTTON STYLE ***/
 /********************/
 button, input[type="submit"], select {
-	cursor:pointer;
+	cursor: pointer;
 	transition:color .5s, background .5s;
 
 	&:hover {
@@ -161,5 +161,18 @@ input[type="range"]{
 		background: $inputColor;
 		height: 3px;
 		border-radius: 3px;
+	}
+}
+
+/********************/
+/**** LINK STYLE ****/
+/********************/
+a {
+	text-decoration: none;
+	color: $linkColor;
+	transition: color .5s;
+
+	&:hover {
+		color: darken($color: $linkColor, $amount: 15)
 	}
 }

@@ -21,6 +21,7 @@ export default {
 
 
 <style lang="scss" scoped>
+@import "@/assets/scss/colors";
 .user {
 	display:flex;
 	align-items: center;

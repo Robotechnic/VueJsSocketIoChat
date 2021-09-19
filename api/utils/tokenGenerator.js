@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const ms = require("ms")
 
 //generate refresh token
 refreshToken = (id) => jwt.sign({
@@ -6,10 +7,13 @@ refreshToken = (id) => jwt.sign({
 }, process.env.TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRE })
 
 //generate access token
-accessToken = (id, ip) => jwt.sign({
-	id,
-	ip
-}, process.env.TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE })
+accessToken = (id, ip) => [
+	jwt.sign({
+		id,
+		ip
+	}, process.env.TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }),
+	Date.now() + ms(process.env.ACCESS_TOKEN_EXPIRE)
+]
 
 
 module.exports = (id, ip) => ({ accessToken: accessToken(id, ip), refreshToken: refreshToken(id) })

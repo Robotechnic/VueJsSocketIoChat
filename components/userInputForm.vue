@@ -1,13 +1,14 @@
 <template>
-	<form class="form" ref="form" @submit.prevent="processUserInfo">
+	<form ref="form" class="form" @submit.prevent="processUserInfo">
 		<h2 class="form__title"> {{ title }}</h2>
 		<p v-if="error" class="form__error"> 
 			{{ error }}
 		</p>
 		<p class="form__success">
-			<img src="@/assets/icons/tick.png">
+			<img src="@/assets/icons/tick.png" />
 			<slot name="successMessage"></slot>
 		</p>
+		<img src="@/assets/images/wait.svg" class="form__waitImg"/>
 		<slot></slot>
 	</form>
 </template>
@@ -52,6 +53,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/scss/colors";
 .form {
 	padding:10px;
 	width: max-content;

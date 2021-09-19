@@ -102,13 +102,13 @@ export default {
 	},
 	computed: {
 		pseudoLength() {return this.pseudo.length < 3 || this.pseudo.length > 15},
-		pseudoForbidden() { return this.pseudo.match(regexValidators.forbidden)},
+		pseudoForbidden() { return Boolean(this.pseudo.match(regexValidators.forbidden))},
 		passwordLowerCase() { return !this.password.match(regexValidators.lower)},
 		passwordUpperCase() { return !this.password.match(regexValidators.upper)},
 		passwordSpetialChar() { return !this.password.match(regexValidators.spetial)},
 		passwordNumber() { return !this.password.match(regexValidators.number)},
 		passwordLenght() { return this.password.length < 8},
-		passwordMatch() { return this.password !== this.passwordRepeat}
+		passwordMatch() { return Boolean(this.password !== this.passwordRepeat)}
 	},
 	methods: {
 		async processUserInfo(form) {

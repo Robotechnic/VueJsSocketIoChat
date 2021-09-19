@@ -44,42 +44,31 @@ export default {
 		async processUserInfo(form) {
 			const target = form.$el
 
-			if (target.pseudo.length === 0){
+			if (target.pseudo.value.length === 0){
 				target.pseudo.focus()
 				form.setError("Veuillez mettre un pseudo")
+				return
 			}
 
-			if (target.password.length === 0){
+			if (target.password.value.length === 0){
 				target.password.focus()
 				form.setError("Veuillez mettre un mot de passe")
+				return
 			}
 
 			form.setWait()
 
-			const result = await fetch("/api/user/signin",{
-				method: "POST",
-				headers: {
-					"Accept": "application/json",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					pseudo: target.pseudo.value,
-					password: target.password.value
-				})
+			const result = await this.$store.dispatch("user/signin",{
+				pseudo: target.pseudo.value,
+				password: target.password.value
 			})
 
-			const json = result?.json()
-
-			if (!json) {
-				form.setError("Erreur interne, veuillez recommencer plus tard")
+			if (!result.err) {
+				form.setSuccess("/e",2000)
 				return
 			}
 
-			if (!json.error) {
-				form.setSuccess("/",1500)
-			}
-
-			switch (json.code) {
+			switch (result.err) {
 				case "EMPTY_FIELDS":
 					form.setError("Veuillez remplir tous les champs")
 					if (target.pseudo.value.length === 0)
@@ -92,6 +81,14 @@ export default {
 					this.password = ""
 					this.pseudo = ""
 					break
+				case "WRONG_PASSWORD":
+					form.setError("Le mot de passe est invalide")
+					this.password = ""
+					break
+				default:
+					form.setError("Une erreur interne est survenue, veuillez recommencer plus tard")
+					this.password = ""
+					break
 			}
 		}
 	}
@@ -99,5 +96,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/scss/colors";
+@import "@/assets/scss/colors";
 </style>

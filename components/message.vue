@@ -19,31 +19,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.message {
-		display:grid;
-		grid-template-areas: "img pseudo"
-							 "img text";
-		grid-template-columns: min-content auto;
-		column-gap: 15px;
+@import "@/assets/scss/colors";
+.message {
+	display:grid;
+	grid-template-areas: "img pseudo"
+							"img text";
+	grid-template-columns: min-content auto;
+	column-gap: 15px;
 
-		border-top:1px solid $textColor;
-		margin-left: 20px;
-		margin-right: 20px;
-		padding: 10px 20px;
-		
-		&__userImage {
-			grid-area: img;
-			border-radius: 25%;
-			height:60px;
-		}
-
-		&__userPseudo {
-			grid-area: pseudo;
-			margin:0;
-		}
-
-		&__content {
-			grid-area: text;
-		}
+	border-top:1px solid $textColor;
+	margin-left: 20px;
+	margin-right: 20px;
+	padding: 10px 20px;
+	
+	&__userImage {
+		grid-area: img;
+		border-radius: 25%;
+		height:60px;
 	}
+
+	&__userPseudo {
+		grid-area: pseudo;
+		margin:0;
+	}
+
+	&__content {
+		grid-area: text;
+	}
+}
 </style>

@@ -24,6 +24,8 @@
 
 <script>
 export default {
+	name: "conversation",
+	middleware: "autenticated",
 	data(){
 		return {
 			currentUser : {
@@ -121,7 +123,7 @@ export default {
 
 
 <style lang="scss" scoped>
-@import "../assets/scss/colors";
+@import "@/assets/scss/colors";
 .chatContener {
 	display:grid;
 	grid-template-areas:"header header"

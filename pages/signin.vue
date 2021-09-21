@@ -1,6 +1,6 @@
 <template>
 	<UserInputForm :error="error" title="Sign In" @newUserData="processUserInfo">
-		<template v-slot:successMessage>
+		<template #successMessage>
 			Connexion réussie.<br />
 			Vous serez redirigé dans quelques secondes
 		</template>
@@ -64,7 +64,10 @@ export default {
 			})
 
 			if (!result.err) {
-				form.setSuccess("/e",2000)
+				this.$router.push({
+					name:"conversation",
+					path:"/"
+				})
 				return
 			}
 

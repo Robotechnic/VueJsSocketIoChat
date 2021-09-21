@@ -1,55 +1,61 @@
 export const state = () => ({
 	accessToken: "",
 	expireat: 0,
-	pseudo: ""
+	pseudo: "",
+	userId: 0
 })
 
 export const mutations = {
-	UPDATE_ACCESS_TOKEN({ token, expireat }) {
-		this.accessToken = token
-		this.expireat = expireat
+	UPDATE_ACCESS_TOKEN(state,{ token, expireat }) {
+		state.accessToken = token
+		state.expireat = expireat
+		localStorage.setItem("accessToken",token)
+		localStorage.setItem("expireat", expireat)
 	},
 
-	SET_PSEUDO(pseudo) {
-		this.pseudo = pseudo
+	UPDATE_USER(state,{id, pseudo}) {
+		state.pseudo = pseudo
+		state.userId = id
+		localStorage.setItem("pseudo", pseudo)
+		localStorage.setItem("userId", id)
 	},
-
-	CLEAR_TOKEN() {
-		this.accessToken = ""
-		this.pseudo = ""
+	CLEAR_TOKEN(state) {
+		state.accessToken = ""
+		state.pseudo = ""
+		localStorage.setItem("accessToken", "")
+		localStorage.setItem("expireat", "")
+		localStorage.setItem("pseudo", "")
+		localStorage.setItem("userId", "")
 	}
 }
 
 export const getters = {
-	connected() {
-		return this.accessToken && this.expireat > Date.now()
+	connected(state) {
+		return state.accessToken !== "" && state.expireat > Date.now()
 	}
 }
 
 export const actions = {
-	async signin(context,{ pseudo, password }) {
-		const result = await fetch("/api/user/signin", {
-			method: "POST",
-			headers: {
-				"Accept": "application/json",
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				pseudo,
-				password
-			})
+	async signin({commit},{ pseudo, password }) {
+		const {json,status} = await this.$customFetch("/api/user/signin",{
+			pseudo,
+			password
 		})
 		
-		const json = await result?.json()
 
 		if (!json) {
 			return { err: "INTERNAL" }
 		}
 
-		if (!json.error && result.status >= 200 && result.status <= 299) {
-			context.commit("UPDATE_ACCESS_TOKEN", {
+		if (!json.error && status >= 200 && status <= 299) {
+			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
-				expireat: json.expireat
+				expireat: Date.now() + json.expirein
+			})
+
+			commit("UPDATE_USER", {
+				pseudo: json.pseudo,
+				id: json.id
 			})
 			return {}
 		}
@@ -57,38 +63,55 @@ export const actions = {
 		return { err: json.code }
 	},
 
-	async updateToken(context) {
-		const response = await fetch("/api/user/refresh", {
-			method: "POST",
-			headers: {
-				"Accept": "application/json",
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				token: this.refreshToken
-			})
+	async updateToken({commit, dispatch}) {
+		const { json } = await this.$customFetch("/api/user/signin", {
+			token: this.refreshToken
 		})
 
-		const json = await response?.json()
-
 		if (!json) {
-			context.dispatch("logout")
+			dispatch("logout")
 		}
 
 		if (!json.error) {
-			context.commit("UPDATE_ACCESS_TOKEN", {
+			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
-				expireat: json.expireat
+				expireat: Date.now() + json.expirein
 			})
-			context.commit("UPDATE_PSEUDO", json.pseudo)
+			commit("UPDATE_USER", {
+				pseudo: json.pseudo,
+				id: json.id
+			})
 		}
 	},
 
-	async logout(context) {
-		await fetch("/api/user/logout", {
-			method: "POST"
-		})
-		context.commit("user/CLEAR_TOKENS")
+	async logout({commit}) {
+		await this.$customFetch("/api/user/signin", {})
+		commit("user/CLEAR_TOKENS")
 		this.$route.push("/signup")
+	},
+
+	async updateFromLocalSorage(context) {
+		if (context.getters.connected)
+			return
+
+		if (process.server){
+			await context.dispatch("updateToken")
+			return
+		}
+		
+		if (Number(localStorage.getItem("expireat")) < Date.now()) {
+			context.commit("CLEAR_TOKEN")
+			await context.dispatch("updateToken")
+			return
+		}
+
+		context.commit("UPDATE_ACCESS_TOKEN",{
+			token: localStorage.getItem("accessToken"),
+			expireat: Number(localStorage.getItem("expireat"))
+		})
+		context.commit("UPDATE_USER",{
+			pseudo: localStorage.getItem("pseudo"),
+			id: Number(localStorage.getItem("userId"))
+		})
 	}
 }

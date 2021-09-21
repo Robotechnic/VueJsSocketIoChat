@@ -12,7 +12,7 @@ accessToken = (id, ip) => [
 		id,
 		ip
 	}, process.env.TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }),
-	Date.now() + ms(process.env.ACCESS_TOKEN_EXPIRE)
+	ms(process.env.ACCESS_TOKEN_EXPIRE)
 ]
 
 

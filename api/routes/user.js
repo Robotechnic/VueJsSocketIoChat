@@ -84,7 +84,7 @@ module.exports = (db) => {
 		let conn
 		try {
 			conn = await db.getConnection()
-			const result = await conn.query("SELECT id, pseudo, image, password FROM users WHERE pseudo=?", [body.pseudo])
+			const result = await conn.query("SELECT id, pseudo, password FROM users WHERE pseudo=?", [body.pseudo])
 
 			//check if user exist
 			if (result.length == 0) {
@@ -117,8 +117,8 @@ module.exports = (db) => {
 				error: null,
 				token: tokens.accessToken[0],
 				pseudo: user.pseudo,
-				image: user.image,
-				expireat: tokens.accessToken[1]
+				id: user.id,
+				expirein: tokens.accessToken[1]
 			})
 		} catch (err) {
 			console.log(err)
@@ -145,7 +145,7 @@ module.exports = (db) => {
 		let conn
 		try {
 			conn = await db.getConnection()
-			const result = await conn.query("SELECT id, image, password FROM users WHERE pseudo=?", [body.pseudo])
+			const result = await conn.query("SELECT id, password FROM users WHERE pseudo=?", [body.pseudo])
 
 			//check if user exist
 			return res.json({
@@ -203,7 +203,7 @@ module.exports = (db) => {
 		let conn, result
 		try {
 			conn = await db.getConnection()
-			result = await conn.query("SELECT id FROM users WHERE id = ?", [token.id])
+			result = await conn.query("SELECT id,pseudo FROM users WHERE id = ?", [token.id])
 			if (result.length == 0) {
 				return res.status(401).json({
 					error: "This token disignate an user but it is not the owner of it",
@@ -221,12 +221,14 @@ module.exports = (db) => {
 				conn.release()
 		}
 
-		const [accessToken, expireat] = tokenGenerator.accessToken(result[0].id, req.ip)
+		const [accessToken, expirein] = tokenGenerator.accessToken(result[0].id, req.ip)
 
 		res.json({
 			error: null,
 			token: accessToken,
-			expireat
+			expirein,
+			pseudo: result[0].pseudo,
+			id: result[0].id
 		})
 	})
 

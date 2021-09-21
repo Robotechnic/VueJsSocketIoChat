@@ -74,7 +74,8 @@ app.get("/",(req,res)=>{
 	})
 })
 
-app.use("/user",require("./routes/user")(db))
+app.use("/friends", require("./routes/friends")(db))
+app.use("/user", require("./routes/user")(db))
 
 module.exports = app
 

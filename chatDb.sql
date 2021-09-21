@@ -6,11 +6,19 @@ USE NuxtChat;
 
 GRANT SELECT, INSERT, DELETE, UPDATE ON * TO 'localNuxt'@'localhost';
 
-#user shema
+#user schema
 CREATE TABLE IF NOT EXISTS users (
 	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	pseudo VARCHAR(15) NOT NULL UNIQUE,
 	password TEXT NOT NULL,
-	refreshToken TEXT UNIQUE,
-	image VARCHAR(30) NOT NULL DEFAULT 'default.png'
+	refreshToken TEXT UNIQUE
+);
+
+#friends schema
+CREATE TABLE IF NOT EXISTS friends (
+	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	userId SMALLINT UNSIGNED NOT NULL,
+	friendId SMALLINT UNSIGNED NOT NULL,
+	CONSTRAINT fk_user_userId FOREIGN KEY (userId) REFERENCES users(id),
+	CONSTRAINT fk_user_friendId FOREIGN KEY (friendId) REFERENCES users(id)
 );

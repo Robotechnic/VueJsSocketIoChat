@@ -1,7 +1,7 @@
 <template>
 	<section class="formContener">
 		<UserInputForm title="Sign Up" @newUserData="processUserInfo">
-			<template v-slot:successMessage>
+			<template #successMessage>
 				Vous avez été enregistré avec succés.
 				<br />
 				Vous serez redirigé vers la page de connexion dans quelques secondes.

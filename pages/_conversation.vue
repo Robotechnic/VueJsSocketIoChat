@@ -3,11 +3,7 @@
 		<header>
 			<h1 class="header__title">NuxtChat</h1>
 		</header>
-		<nav class="friends">
-			<h2 class="friends__title">Friends</h2>
-			<p v-if="friends.length == 0">You doesn't have any friends yet ;(</p>
-			<User v-for="friend, index in friends" v-else :key="index" :user="friend"/>
-		</nav>
+		<Friends :userId="$store.state.user.userId"/>
 		<section v-if="!$route.params.conversation" class="homePresentation">
 			<h1>Home</h1>
 			<p>Welcome to this beautifull chat</p>
@@ -24,7 +20,7 @@
 
 <script>
 export default {
-	name: "conversation",
+	name: "Conversation",
 	middleware: "autenticated",
 	data(){
 		return {
@@ -32,55 +28,7 @@ export default {
 				id:0,
 				pseudo:"Robotechnic",
 				image:"/usersImages/default.png"
-			},
-			friends:[
-				{
-					id:1,
-					pseudo:"Hello",
-					image:"/usersImages/default.png",
-					status:1
-				},
-				{
-					id:2,
-					pseudo:"Never here",
-					image:"/usersImages/default.png",
-					status:0
-				}
-			],
-			messages:[
-				{
-					userId:1,
-					text:"Hello, I'm Hello, how are you?"
-				},
-				{
-					userId:-1,
-					text:"Hy, I'm fine and you"
-				},
-				{
-					userId:1,
-					text:"Fine too. Do you enjoy this chat?"
-				},
-				{
-					userId:-1,
-					text:"Yes of course"
-				},
-				{
-					userId:1,
-					text:"Hello, I'm Hello, how are you?"
-				},
-				{
-					userId:-1,
-					text:"Hy, I'm fine and you"
-				},
-				{
-					userId:1,
-					text:"Fine too. Do you enjoy this chat?"
-				},
-				{
-					userId:1,
-					text:"Yes of course"
-				}
-			]
+			}
 		}
 	},
 	computed: {
@@ -97,6 +45,7 @@ export default {
 		}
 	},
 	mounted(){
+		this.$store.dispatch("user/updateFromLocalSorage")
 		this.scrollToBottom()
 	},
 	methods:{
@@ -106,10 +55,10 @@ export default {
 				return this.friends.filter(user => user.id === id)[0]
 			}
 		},
-		addMessage(messageText){
+		addMessage(message){
 			this.messages.push({
 				userId:-1,
-				text:messageText
+				text:message
 			})
 		},
 		scrollToBottom() {
@@ -141,20 +90,6 @@ header {
 
 	.header__title {
 		margin:2px;
-	}
-}
-
-.friends {
-	grid-area:friend;
-	padding: 5px 10px;
-	background:$elementsBackground;
-	border-left:2px solid $secondaryColor;
-	border-top-right-radius: 10px;
-	border-bottom-right-radius: 10px;
-
-	&__title {
-		margin-bottom: 2px;
-		border-bottom: 1px solid $textColor;
 	}
 }
 

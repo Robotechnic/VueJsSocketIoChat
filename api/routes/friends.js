@@ -39,7 +39,7 @@ module.exports = (db) => {
 			})
 
 		if (result.length == 0)
-			res.json({
+			return res.json({
 				hasFriend: false,
 				friend: {}
 			})

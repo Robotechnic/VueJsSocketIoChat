@@ -24,12 +24,6 @@ export default {
 		err: false
 	}},
 
-	watch:{
-		$route (to, from){
-			this.$fetch()
-		}
-	},
-
 	async fetch() {
 		const {json, err} = await this.$customFetch("/api/friends/hasFriend",{
 			friendId: this.$route.params.conversation,
@@ -59,6 +53,12 @@ export default {
 		// }
 
 		// this.messageList = jsonMessages
+	},
+
+	watch:{
+		$route (to, from){
+			this.$fetch()
+		}
 	}
 }
 </script>

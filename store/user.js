@@ -69,13 +69,11 @@ export const actions = {
 	async updateToken({commit, dispatch}) {
 		const { json } = await this.$customFetch("/api/user/refresh", {})
 
-		console.log(json)
 		if (!json) {
 			dispatch("logout")
 		}
 
 		if (!json.error) {
-			console.log("Token ok")
 			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
 				expireat: Date.now() + json.expirein

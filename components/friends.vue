@@ -32,11 +32,11 @@ export default {
 	},
 	methods: {
 		async fetch() {
-			const {json} = await this.$customFetch("/api/friends/userFriends",{
+			const {json,err} = await this.$customFetch("/api/friends/userFriends",{
 				token: this.$store.state.user.accessToken
 			})
 			
-			if (!json) {
+			if (!json || err) {
 				this.error = true
 				return
 			}
@@ -72,6 +72,7 @@ export default {
 	border-left:2px solid $secondaryColor;
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
+	overflow-y: auto;
 
 	&__title {
 		margin-bottom: 2px;

@@ -1,14 +1,12 @@
 <template>
 	<nuxt-link class="user" :to="'/'+user.id">
-		<img :src="avatar" class="user__image">
+		<UserImage :pseudo="user.pseudo" class="user__image" />
 		<p class="user__pseudo">{{user.pseudo}}</p>
 		<div class="user__status" :class="{connected:user.status == '1',disconnected:user.status == '0'}">&nbsp;</div>
 	</nuxt-link>
 </template>
 
 <script>
-import { createAvatar } from '@dicebear/avatars';
-import * as style from '@dicebear/avatars-bottts-sprites';
 
 export default {
 	name:"User",
@@ -18,16 +16,6 @@ export default {
 			required:true
 		}
 	},
-	computed: {
-		avatar(){
-			return createAvatar(style, {
-				seed: this.user.pseudo,
-				radius: 30,
-				dataUri: true,
-				background: "white"
-			})
-		}
-	}
 }
 </script>
 

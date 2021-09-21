@@ -1,6 +1,6 @@
 <template>
 	<div class="message">
-		<img :src="message.user.image" :alt="message.user.pseudo + '\'s avatar'" class="message__userImage">
+		<UserImage :pseudo="message.user.pseudo" :alt="message.user.pseudo + '\'s avatar'" class="message__userImage" />
 		<h3 class="message__userPseudo">{{message.user.pseudo}}</h3>
 		<p class="message__content">{{message.text}}</p>
 	</div>

@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const escapeHTML = require("escape-html")
 const tokenGenerator = require("../utils/tokenGenerator")
+const dbQuery = require("../utils/dbQuery.js")
 
 module.exports = (db) => {
 	const route = require("express").Router()
@@ -40,35 +41,32 @@ module.exports = (db) => {
 		//hash password
 		const hashPassword = await bcrypt.hash(body.password, parseInt(process.env.BCRYPT_SALT_ROUND) ?? 10)
 
-		//query database
-		let conn
-		try {
-			conn = await db.getConnection()
-			const result = await conn.query("INSERT INTO users (pseudo,password) VALUES (?,?)", [body.pseudo, hashPassword])
-			if (result.affectedRows == 1) {
-				return res.json({ //response if everithing is ok
-					error: null,
-					insertId: result.insertId
-				})
-			}
-		} catch (err) {
-			if (err.code == "ER_DUP_ENTRY") { //if pseudo alrealy exist
-				return res.status(409).json({
-					error: "Pseudo alrealy exist",
-					code: "PSEUDO_EXIST"
-				})
-			}
+		const { result, err } = await dbQuery(
+			db,
+			"SELECT id,pseudo FROM users WHERE id IN (SELECT friendId FROM friends WHERE userId=?)",
+			[body.pseudo, hashPassword]
+		)
 
-			//for all others errors
-			console.log(err)
-			return res.status(500).json({
-				error: "Internal error",
-				code: "INTERNAL"
+		if (result.affectedRows == 1) {
+			return res.json({ //response if everithing is ok
+				error: null,
+				insertId: result.insertId
 			})
-		} finally {
-			if (conn) //always release connection after using it
-				conn.release()
 		}
+
+		if (err.code == "ER_DUP_ENTRY") { //if pseudo alrealy exist
+			return res.status(409).json({
+				error: "Pseudo alrealy exist",
+				code: "PSEUDO_EXIST"
+			})
+		}
+
+		//for all others errors
+		console.log(err)
+		return res.status(500).json({
+			error: "Internal error",
+			code: "INTERNAL"
+		})
 	})
 
 	route.post("/signin", async (req, res) => {
@@ -81,55 +79,64 @@ module.exports = (db) => {
 			})
 		}
 
-		let conn
-		try {
-			conn = await db.getConnection()
-			const result = await conn.query("SELECT id, pseudo, password FROM users WHERE pseudo=?", [body.pseudo])
+		const { result, err } = await dbQuery(
+			db,
+			"SELECT id, pseudo, password FROM users WHERE pseudo=?",
+			[body.pseudo]
+		)
 
-			//check if user exist
-			if (result.length == 0) {
-				return res.status(401).json({
-					error: "User doesn't exist",
-					code: "USER_NOT_EXIST"
-				})
-			}
-			const user = result[0]
-			//check password
-			const validPassword = await bcrypt.compare(body.password, user.password)
-			if (!validPassword) {
-				return res.status(401).json({
-					error: "Invalid password",
-					code: "WRONG_PASSWORD"
-				})
-			}
-
-			//create jwt
-			const tokens = tokenGenerator(user.id, req.ip)
-
-			//update bdd refresh token
-			conn.query("UPDATE users SET refreshToken=? WHERE id=?", [tokens.refreshToken, user.id])
-
-			//set cookie
-			res.cookie("refreshToken", tokens.refreshToken, res.cookieSettings)
-
-			//send it
-			return res.json({
-				error: null,
-				token: tokens.accessToken[0],
-				pseudo: user.pseudo,
-				id: user.id,
-				expirein: tokens.accessToken[1]
-			})
-		} catch (err) {
-			console.log(err)
+		if (err) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
-		} finally {
-			if (conn)
-				conn.release()
 		}
+
+		if (result.length == 0) {
+			return res.status(401).json({
+				error: "User doesn't exist",
+				code: "USER_NOT_EXIST"
+			})
+		}
+
+		const user = result[0]
+		//check password
+		const validPassword = await bcrypt.compare(body.password, user.password)
+		if (!validPassword) {
+			return res.status(401).json({
+				error: "Invalid password",
+				code: "WRONG_PASSWORD"
+			})
+		}
+
+		//create jwt
+		const tokens = tokenGenerator(user.id, req.ip)
+
+		
+		//update bdd refresh token
+		const { updateResult, updateErr } = await dbQuery(
+			db,
+			"UPDATE users SET refreshToken=? WHERE id=?",
+			[tokens.refreshToken, user.id]
+		)
+		if (updateErr) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		//set cookie
+		res.cookie("refreshToken", tokens.refreshToken, res.cookieSettings)
+
+		//send it
+		return res.json({
+			error: null,
+			token: tokens.accessToken[0],
+			pseudo: user.pseudo,
+			id: user.id,
+			expirein: tokens.accessToken[1]
+		})
 	})
 
 	route.post("/userExist", async (req, res) => {
@@ -142,27 +149,23 @@ module.exports = (db) => {
 			})
 		}
 
-		let conn
-		try {
-			conn = await db.getConnection()
-			const result = await conn.query("SELECT id, password FROM users WHERE pseudo=?", [body.pseudo])
+		const { result, err } = await dbQuery(
+			db,
+			"SELECT id, password FROM users WHERE pseudo=?",
+			[body.pseudo]
+		)
 
-			//check if user exist
-			return res.json({
-				err: null,
-				userExist: result.length !== 0
-			})
-
-		} catch (err) {
-			console.log(err)
+		if (err) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
-		} finally {
-			if (conn)
-				conn.release()
 		}
+
+		return res.json({
+			err: null,
+			userExist: result.length !== 0
+		})
 	})
 
 	route.post("/refresh", async (req, res) => {
@@ -200,25 +203,24 @@ module.exports = (db) => {
 
 		const token = jwt.decode(refreshToken)
 
-		let conn, result
-		try {
-			conn = await db.getConnection()
-			result = await conn.query("SELECT id,pseudo FROM users WHERE id = ?", [token.id])
-			if (result.length == 0) {
-				return res.status(401).json({
-					error: "This token disignate an user but it is not the owner of it",
-					errorCode: "WRONG_REFRESH_TOKEN_OWNER"
-				})
-			}
-		} catch (err) {
-			console.log(err)
+		const { result, err } = await dbQuery(
+			db,
+			"SELECT id,pseudo FROM users WHERE id = ?",
+			[token.id]
+		)
+
+		if (err) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
-		} finally {
-			if (conn)
-				conn.release()
+		}
+
+		if (result.length == 0) {
+			return res.status(401).json({
+				error: "This token disignate an user but it is not the owner of it",
+				errorCode: "WRONG_REFRESH_TOKEN_OWNER"
+			})
 		}
 
 		const [accessToken, expirein] = tokenGenerator.accessToken(result[0].id, req.ip)
@@ -233,23 +235,20 @@ module.exports = (db) => {
 	})
 
 	route.post("/logout", require("../middleware/token"), async (req, res) => {
-		let conn
-		try {
-			//update db
-			conn = await db.getConnection()
-			await conn.query("UPDATE users SET refreshToken='' WHERE id=?", [token.id])
+		const { result, err } = await dbQuery(
+			db,
+			"UPDATE users SET refreshToken='' WHERE id=?",
+			[token.id]
+		)
 
-			//set cookie
-			res.cookie("refreshToken", "", res.cookieSettings)
-		} catch (err) {
-			console.log(err)
+		//set cookie
+		res.cookie("refreshToken", "", res.cookieSettings)
+		
+		if (err){
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
-		} finally {
-			if (conn)
-				conn.release()
 		}
 
 		return res.json({

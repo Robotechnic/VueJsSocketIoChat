@@ -9,6 +9,7 @@ export const mutations = {
 	UPDATE_ACCESS_TOKEN(state,{ token, expireat }) {
 		state.accessToken = token
 		state.expireat = expireat
+		if (process.server) return
 		localStorage.setItem("accessToken",token)
 		localStorage.setItem("expireat", expireat)
 	},
@@ -16,12 +17,14 @@ export const mutations = {
 	UPDATE_USER(state,{id, pseudo}) {
 		state.pseudo = pseudo
 		state.userId = id
+		if (process.server) return
 		localStorage.setItem("pseudo", pseudo)
 		localStorage.setItem("userId", id)
 	},
 	CLEAR_TOKEN(state) {
 		state.accessToken = ""
 		state.pseudo = ""
+		if (process.server) return
 		localStorage.setItem("accessToken", "")
 		localStorage.setItem("expireat", "")
 		localStorage.setItem("pseudo", "")
@@ -64,15 +67,15 @@ export const actions = {
 	},
 
 	async updateToken({commit, dispatch}) {
-		const { json } = await this.$customFetch("/api/user/signin", {
-			token: this.refreshToken
-		})
+		const { json } = await this.$customFetch("/api/user/refresh", {})
 
+		console.log(json)
 		if (!json) {
 			dispatch("logout")
 		}
 
 		if (!json.error) {
+			console.log("Token ok")
 			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
 				expireat: Date.now() + json.expirein
@@ -85,7 +88,7 @@ export const actions = {
 	},
 
 	async logout({commit}) {
-		await this.$customFetch("/api/user/signin", {})
+		await this.$customFetch("/api/user/logout", {})
 		commit("user/CLEAR_TOKENS")
 		this.$route.push("/signup")
 	},

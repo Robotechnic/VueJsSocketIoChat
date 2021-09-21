@@ -1,4 +1,5 @@
 const tokenChecker = require("../middleware/token")
+const dbQuery = require("../utils/dbQuery.js")
 
 module.exports = (db) => {
 	const router = require("express").Router()
@@ -6,29 +7,47 @@ module.exports = (db) => {
 	router.post("/userFriends",tokenChecker,async (req,res)=>{
 		const userId = req.token.id
 
-		let conn
-		try {
-			conn = await db.getConnection()
+		const {result,err} = await dbQuery(db,"SELECT id,pseudo FROM users WHERE id IN (SELECT friendId FROM friends WHERE userId=?)",[userId])
 
-			const result = await conn.query("SELECT id,pseudo FROM users WHERE id IN (SELECT friendId FROM friends WHERE userId=?)",[userId])
-
-			if (result.length === 0) {
-				return res.status(401).json({
-					error: "User doesn't exist",
-					code: "USER_NOT_EXIST"
-				})
-			}
-			res.json(result)
-		} catch (err) {
-			console.log(err)
+		if (err)
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
-		} finally {
-			if (conn)
-				conn.release()
+
+		res.json(result)
+	})
+
+	router.post("/hasFriend",tokenChecker,async (req,res)=>{
+		const body = req.body
+
+		if (!body.friendId) {
+			return res.status(422).json({
+				error: "required fileds",
+				code: "EMPTY_FIELDS",
+				errorMessage: "This post route require a friendId field"
+			})
 		}
+
+		const userId = req.token.id
+		const { result, err } = await dbQuery(db, "SELECT id,pseudo FROM users WHERE id = (SELECT friendId FROM friends WHERE userId=? AND friendId=?)", [userId,body.friendId])
+
+		if (err)
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+
+		if (result.length == 0)
+			res.json({
+				hasFriend: false,
+				friend: {}
+			})
+		
+		res.json({
+			hasFriend: true,
+			friend: result[0]
+		})
 	})
 
 

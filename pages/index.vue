@@ -4,16 +4,7 @@
 			<h1 class="header__title">NuxtChat</h1>
 		</header>
 		<Friends :userId="$store.state.user.userId"/>
-		<section v-if="!$route.params.conversation" class="homePresentation">
-			<h1>Home</h1>
-			<p>Welcome to this beautifull chat</p>
-		</section>
-
-		<section v-else ref="messageDisplay" class="messageDisplay">
-			<p class="messageDisplay__start">This is the begining of this conversation.<br/>To start, you just need to type a message in the area on the bottom.</p>
-			<Message v-for="message,index in messageList" :key="index" :message="message"/>
-		</section>
-		
+		<nuxt-child />
 		<MessageEditor class="editor" @send-message="addMessage"/>
 	</div>
 </template>
@@ -22,13 +13,9 @@
 export default {
 	name: "Conversation",
 	middleware: "autenticated",
-	data(){
+	data() {
 		return {
-			currentUser : {
-				id:0,
-				pseudo:"Robotechnic",
-				image:"/usersImages/default.png"
-			}
+			messages:[]
 		}
 	},
 	computed: {
@@ -49,12 +36,6 @@ export default {
 		this.scrollToBottom()
 	},
 	methods:{
-		userFromId(id){	// get user data from his id
-			if (id === -1) return this.currentUser
-			else {
-				return this.friends.filter(user => user.id === id)[0]
-			}
-		},
 		addMessage(message){
 			this.messages.push({
 				userId:-1,

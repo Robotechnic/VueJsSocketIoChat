@@ -79,12 +79,13 @@ module.exports = (db) => {
 			})
 		}
 
-		const { result, err } = await dbQuery(
+		let query = await dbQuery(
 			db,
 			"SELECT id, pseudo, password FROM users WHERE pseudo=?",
 			[body.pseudo]
 		)
-
+		
+		let err = query.err
 		if (err) {
 			return res.status(500).json({
 				error: "Internal error",
@@ -92,6 +93,7 @@ module.exports = (db) => {
 			})
 		}
 
+		let result = query.result
 		if (result.length == 0) {
 			return res.status(401).json({
 				error: "User doesn't exist",
@@ -114,17 +116,21 @@ module.exports = (db) => {
 
 		
 		//update bdd refresh token
-		const { updateResult, updateErr } = await dbQuery(
+		query = await dbQuery(
 			db,
 			"UPDATE users SET refreshToken=? WHERE id=?",
 			[tokens.refreshToken, user.id]
 		)
-		if (updateErr) {
+
+		err = query.err
+		if (err) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
 		}
+
+		result = query.result
 
 		//set cookie
 		res.cookie("refreshToken", tokens.refreshToken, res.cookieSettings)

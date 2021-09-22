@@ -19,6 +19,18 @@ CREATE TABLE IF NOT EXISTS friends (
 	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	userId SMALLINT UNSIGNED NOT NULL,
 	friendId SMALLINT UNSIGNED NOT NULL,
-	CONSTRAINT fk_user_userId FOREIGN KEY (userId) REFERENCES users(id),
-	CONSTRAINT fk_user_friendId FOREIGN KEY (friendId) REFERENCES users(id)
+	CONSTRAINT fk_friends_user_userId FOREIGN KEY (userId) REFERENCES users(id),
+	CONSTRAINT fk_friends_user_friendId FOREIGN KEY (friendId) REFERENCES users(id)
 );
+
+#message shcema
+CREATE TABLE IF NOT EXISTS messages (
+	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	userId SMALLINT UNSIGNED NOT NULL,
+	friendId SMALLINT UNSIGNED NOT NULL,
+	message TEXT,
+	creation DATETIME DEFAULT NOW()
+	CONSTRAINT fk_message_user_userId FOREIGN KEY (userId) REFERENCES users(id),
+	CONSTRAINT fk_message_user_friendId FOREIGN KEY (friendId) REFERENCES users(id)
+);
+

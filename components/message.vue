@@ -1,8 +1,8 @@
 <template>
 	<div class="message">
-		<UserImage :pseudo="message.user.pseudo" :alt="message.user.pseudo + '\'s avatar'" class="message__userImage" />
-		<h3 class="message__userPseudo">{{message.user.pseudo}}</h3>
-		<p class="message__content">{{message.text}}</p>
+		<UserImage :pseudo="String(user.pseudo)" :alt="String(user.pseudo) + '\'s avatar'" class="message__userImage" />
+		<h3 class="message__userPseudo">{{user.pseudo}}</h3>
+		<p class="message__content">{{message.message}}</p>
 	</div>
 </template>
 
@@ -13,6 +13,10 @@ export default {
 		message:{
 			type: Object,
 			required:true
+		},
+		user: {
+			type: Object,
+			required: true
 		}
 	}
 }

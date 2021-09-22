@@ -31,21 +31,12 @@ export default {
 			return result
 		}
 	},
-	mounted(){
-		this.$store.dispatch("user/updateFromLocalSorage")
-		this.scrollToBottom()
-	},
 	methods:{
 		addMessage(message){
 			this.messages.push({
 				userId:-1,
 				text:message
 			})
-		},
-		scrollToBottom() {
-			if (this.$refs.messageDisplay){
-				this.$refs.messageDisplay.scrollTop = this.$refs.messageDisplay.scrollHeight
-			}
 		}
 	}
 }

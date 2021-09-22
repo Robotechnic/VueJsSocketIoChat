@@ -2,7 +2,8 @@ export const state = () => ({
 	accessToken: "",
 	expireat: 0,
 	pseudo: "",
-	userId: 0
+	userId: 0,
+	refreshTimeoutId: -1
 })
 
 export const mutations = {
@@ -29,6 +30,13 @@ export const mutations = {
 		localStorage.setItem("expireat", "")
 		localStorage.setItem("pseudo", "")
 		localStorage.setItem("userId", "")
+	},
+
+	REFRESH_TIMEOUT(state,id) {
+		if (state.refreshTimeoutId >= 0) {
+			clearTimeout(state.refreshTimeoutId)
+		}
+		state.refreshTimeoutId = id
 	}
 }
 
@@ -39,7 +47,7 @@ export const getters = {
 }
 
 export const actions = {
-	async signin({commit},{ pseudo, password }) {
+	async signin({commit,dispatch},{ pseudo, password }) {
 		const {json,status} = await this.$customFetch("/api/user/signin",{
 			pseudo,
 			password
@@ -60,6 +68,8 @@ export const actions = {
 				pseudo: json.pseudo,
 				id: json.id
 			})
+
+			dispatch("resetRefreshInterval", json.expirein - 10000)
 			return {}
 		}
 
@@ -114,5 +124,11 @@ export const actions = {
 			pseudo: localStorage.getItem("pseudo"),
 			id: Number(localStorage.getItem("userId"))
 		})
+	},
+
+	resetRefreshInterval(context, duration) {
+		context.commit("REFRESH_TIMEOUT",setTimeout(()=>{
+			context.dispatch("updateToken")
+		}, duration))
 	}
 }

@@ -3,19 +3,26 @@
 		<header>
 			<h1 class="header__title">NuxtChat</h1>
 		</header>
-		<Friends :userId="$store.state.user.userId"/>
-		<nuxt-child />
-		<MessageEditor class="editor" @send-message="addMessage"/>
+		<Friends :userId="$store.state.user.userId" ref="friends"/>
+		<nuxt-child ref="messagesView"/>
+		<MessageEditor class="editor" @send-message="sendMessage"/>
 	</div>
 </template>
 
 <script>
+const io = require("socket.io-client")
+
 export default {
 	name: "Conversation",
 	middleware: "autenticated",
 	data() {
 		return {
-			messages:[]
+			messages: [],
+			socket: io(process.env.ORIGIN, {
+				query: {
+					token :this.$store.state.user.userId
+				}
+			})
 		}
 	},
 	computed: {
@@ -31,11 +38,24 @@ export default {
 			return result
 		}
 	},
+	created(){
+		this.socket.on("connect",()=>{
+			console.log("Connected to the server")
+		})
+
+		this.socket.on("error",(err)=>{
+			console.error(err)
+		})
+
+		this.socket.on("userStatus",this.$refs.updateUserStatus)
+	},
 	methods:{
-		addMessage(message){
-			this.messages.push({
-				userId:-1,
-				text:message
+		sendMessage(message) {
+			this.socket.emit("message",this.$store.state.user.accessToken,message)
+			this.$refs.messagesView.addMessage({
+				message,
+				creation: Date.now(),
+				userId: this.$store.state.user.userId
 			})
 		}
 	}

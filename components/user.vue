@@ -2,7 +2,7 @@
 	<nuxt-link class="user" :to="'/'+user.id">
 		<UserImage :pseudo="user.pseudo" class="user__image" />
 		<p class="user__pseudo">{{user.pseudo}}</p>
-		<div class="user__status" :class="{connected:user.status == '1',disconnected:user.status == '0'}">&nbsp;</div>
+		<div class="user__status" :class="{connected:user.status == 'connected',disconnected:user.status == 'disconected'}">&nbsp;</div>
 	</nuxt-link>
 </template>
 

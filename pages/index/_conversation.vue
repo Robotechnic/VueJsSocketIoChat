@@ -12,7 +12,7 @@
 			An error appened, please try again
 		</p>
 		<Message 
-			v-for="message,index in messageList" 
+			v-for="message,index in messages" 
 			:key="index" 
 			:message="message"
 			:user="message.userId == $store.state.user.userId ? {pseudo: $store.state.user.pseudo, id:$store.state.user.userId} : friend"
@@ -24,7 +24,7 @@
 export default {
 	data() { return {
 		friend: {},
-		messageList: [],
+		messages: [],
 		hasFriend:true,
 		err: false
 	}},
@@ -57,7 +57,7 @@ export default {
 			return
 		}
 
-		this.messageList = json.messages
+		this.messages = json.messages
 		this.$nextTick(()=>{
 			this.scrollToBottom()
 		})
@@ -74,6 +74,13 @@ export default {
 			if (this.$refs.messageDisplay){
 				this.$refs.messageDisplay.scrollTop = this.$refs.messageDisplay.scrollHeight
 			}
+		},
+		addMessage(message){
+			this.messages.push(message)
+			if (this.$refs.messageDisplay.scrollHeight - this.$refs.messageDisplay.scrollTop < 500)
+				this.$nextTick(()=>{
+						this.scrollToBottom()
+				})
 		}
 	}
 }
@@ -83,4 +90,4 @@ export default {
 p {
 	padding: 0px 30px;
 }
-</style>
+</style> 

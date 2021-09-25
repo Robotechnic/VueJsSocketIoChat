@@ -69,7 +69,6 @@
 					Connectez vous
 				</nuxt-link>
 			</p>
-			<img class="form__waitImg" src="@/assets/images/wait.svg">
 		</UserInputForm>
 	</section>
 </template>

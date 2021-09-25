@@ -57,6 +57,10 @@ export default {
 					this.error = true
 					break
 			}
+		},
+
+		updateUserStatus(status) {
+			this.friends.filter(element => element.userId === status.userId).status = status.status
 		}
 	}
 }

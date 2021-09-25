@@ -37,7 +37,8 @@ export default {
 
 	// Modules: https://go.nuxtjs.dev/config-modules
 	modules: [
-		['cookie-universal-nuxt', { alias: 'cookiz' }]
+		['cookie-universal-nuxt', { alias: 'cookiz' }],
+		"@/socketIoServer/socket.js"
 	],
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build

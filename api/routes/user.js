@@ -43,10 +43,10 @@ module.exports = (db) => {
 
 		const { result, err } = await dbQuery(
 			db,
-			"SELECT id,pseudo FROM users WHERE id IN (SELECT friendId FROM friends WHERE userId=?)",
+			"INSERT INTO users (pseudo, password) values (?,?)",
 			[body.pseudo, hashPassword]
 		)
-
+		
 		if (result.affectedRows == 1) {
 			return res.json({ //response if everithing is ok
 				error: null,
@@ -54,7 +54,7 @@ module.exports = (db) => {
 			})
 		}
 
-		if (err.code == "ER_DUP_ENTRY") { //if pseudo alrealy exist
+		if (err && err.code == "ER_DUP_ENTRY") { //if pseudo alrealy exist
 			return res.status(409).json({
 				error: "Pseudo alrealy exist",
 				code: "PSEUDO_EXIST"

@@ -15,7 +15,7 @@
 			v-for="message,index in messages" 
 			:key="index" 
 			:message="message"
-			:user="message.userId == $store.state.user.userId ? {pseudo: $store.state.user.pseudo, id:$store.state.user.userId} : friend"
+			:user="message.userId === $store.state.user.userId ? {pseudo: $store.state.user.pseudo, id:$store.state.user.userId} : friend"
 			/>
 	</section>
 </template>

@@ -1,6 +1,7 @@
 const { Server } = require("socket.io")
 const tokenChecker = require("./middlewares/token");
 
+const dbQuery = require("../api/utils/dbQuery")
 const friendQuery = require("../api/utils/friendQuery")
 
 
@@ -38,8 +39,34 @@ export default function () {
 				return next()
 			})
 
-			socket.on("message", (message) => {
-				console.log(message)
+			socket.on("message", async (token,message) => {
+				//check db
+				let { result, err } = await friendQuery.hasFriend(io.db,socket.token.id,message.to)
+
+				if (err) {
+					socket.emit("error",new Error(err.code))
+					return
+				}
+
+				if (result.length == 0) {
+					return
+				}
+
+				({err, result} = await dbQuery(
+					io.db,
+					"INSERT INTO messages (userId,friendId,message) VALUES (?,?,?)",
+					[socket.token.id, message.to, message.message]
+				))
+
+				if (err) {
+					socket.emit("error", new Error(err.code))
+					return
+				}
+
+				socket.to(`${message.to}`).emit("message",{
+					message: message.message,
+					from: socket.token.id
+				})
 			})
 
 			socket.on("disconnecting",()=>{
@@ -50,7 +77,6 @@ export default function () {
 			})
 
 			socket.on("getConnectedSockets",async ()=>{
-
 				const { result, err } = await friendQuery.userFriends(io.db,socket.token.id)
 
 				if (err) {

@@ -57,10 +57,21 @@ export default {
 				this.$refs.friends.updateUserStatus(status)
 			})
 		})
+
+		this.socket.on("message",(message)=>{
+			this.$refs.messagesView.addMessage({
+				message: message.message,
+				creation: Date.now(),
+				userId: message.from
+			})
+		})
 	},
 	methods:{
 		sendMessage(message) {
-			this.socket.emit("message",this.$store.state.user.accessToken,message)
+			this.socket.emit("message",this.$store.state.user.accessToken,{
+				message,
+				to: this.$refs.messagesView.friend.userId ?? 0
+			})
 			this.$refs.messagesView.addMessage({
 				message,
 				creation: Date.now(),

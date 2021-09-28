@@ -34,14 +34,13 @@ module.exports = (db) => {
 		const { result, err } = await friendQuery.hasFriend(db,userId,body.friendId)
 
 		if (err) {
-			console.log("error")
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
 		}
 		
-		if (result.length == 0)
+		if (result.length === 0)
 			return res.json({
 				hasFriend: false,
 				friend: {}

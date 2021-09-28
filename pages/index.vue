@@ -19,8 +19,8 @@ export default {
 		return {
 			messages: [],
 			socket: io(process.env.ORIGIN, {
-				query: {
-					token :this.$store.state.user.userId
+				auth: {
+					token : this.$store.state.user.accessToken
 				}
 			})
 		}
@@ -31,23 +31,27 @@ export default {
 			
 			for (const i in this.messages){
 				result.push({
-					text:this.messages[i].text,
-					user:this.userFromId(this.messages[i].userId)
+					text: this.messages[i].text,
+					user: this.userFromId(this.messages[i].userId)
 				})
 			}
 			return result
 		}
 	},
-	created(){
+	mounted(){
 		this.socket.on("connect",()=>{
 			console.log("Connected to the server")
 		})
 
-		this.socket.on("error",(err)=>{
-			console.error(err)
+		this.socket.on("error",()=>{
+			console.error("Socket error")
 		})
 
-		this.socket.on("userStatus",this.$refs.updateUserStatus)
+		this.socket.on("connect_error",(err)=>{
+			console.error("Connexion Error", err.message)
+		})
+
+		this.socket.on("status",this.$refs.friends.updateUserStatus)
 	},
 	methods:{
 		sendMessage(message) {
@@ -71,7 +75,7 @@ export default {
 						"friend main"
 						"friend editor";
 	gap:5px;
-	grid-template-columns: .2fr 1fr;
+	grid-template-columns: max-content 1fr;
 	grid-template-rows: max-content 1fr max-content;
 	height:100vh;
 }

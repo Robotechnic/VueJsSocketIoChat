@@ -76,11 +76,13 @@ export default {
 			}
 		},
 		addMessage(message){
-			this.messages.push(message)
-			if (this.$refs.messageDisplay.scrollHeight - this.$refs.messageDisplay.scrollTop < 500)
-				this.$nextTick(()=>{
-						this.scrollToBottom()
-				})
+			if (message.userId === this.friend.userId || message.userId === this.$store.state.user.userId) {
+				this.messages.push(message)
+				if (this.$refs.messageDisplay.scrollHeight - this.$refs.messageDisplay.scrollTop < 500)
+					this.$nextTick(()=>{
+							this.scrollToBottom()
+					})
+			}
 		}
 	}
 }

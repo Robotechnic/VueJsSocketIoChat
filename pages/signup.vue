@@ -100,7 +100,7 @@ export default {
 		}
 	},
 	computed: {
-		pseudoLength() {return this.pseudo.length < 3 || this.pseudo.length > 15},
+		pseudoLength() {return this.pseudo.length < 3 || this.pseudo.length > 12},
 		pseudoForbidden() { return Boolean(this.pseudo.match(regexValidators.forbidden))},
 		passwordLowerCase() { return !this.password.match(regexValidators.lower)},
 		passwordUpperCase() { return !this.password.match(regexValidators.upper)},

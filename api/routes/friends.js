@@ -1,5 +1,5 @@
 const tokenChecker = require("../middleware/token")
-const dbQuery = require("../utils/dbQuery.js")
+const friendQuery = require("../utils/friendQuery")
 
 module.exports = (db) => {
 	const router = require("express").Router()
@@ -7,11 +7,7 @@ module.exports = (db) => {
 	router.post("/userFriends", tokenChecker, async (req, res) => {
 		const userId = req.token.id
 
-		const { result, err } = await dbQuery(
-			db,
-			"SELECT u.id AS id, pseudo FROM users AS u  LEFT JOIN friends AS f1 ON f1.userId1=u.id LEFT JOIN friends AS f2 ON f2.userId2=u.id  WHERE  (f1.userId2 = ? OR f2.userId1 = ?)",
-			[userId, userId]
-		)
+		const {result,err} = await friendQuery.userFriends(db,userId)
 
 		if (err) {
 			console.log(err)
@@ -20,7 +16,6 @@ module.exports = (db) => {
 				code: "INTERNAL"
 			})
 		}
-		console.log(result)
 		res.json(result)
 	})
 
@@ -36,11 +31,7 @@ module.exports = (db) => {
 		}
 
 		const userId = req.token.id
-		const { result, err } = await dbQuery(
-			db,
-			"SELECT u.id AS id, pseudo FROM users AS u LEFT JOIN friends AS f1 ON f1.userId1=u.id LEFT JOIN friends AS f2 ON f2.userId2=u.id  WHERE  (f1.userId2 = ? AND f1.userId1=?) OR (f2.userId2 = ? AND f2.userId1=?)",
-			[userId, body.friendId, body.friendId, userId]
-		)
+		const { result, err } = await friendQuery.hasFriend(db,userId,body.friendId)
 
 		if (err) {
 			console.log("error")
@@ -49,7 +40,7 @@ module.exports = (db) => {
 				code: "INTERNAL"
 			})
 		}
-		console.log(result)
+		
 		if (result.length == 0)
 			return res.json({
 				hasFriend: false,

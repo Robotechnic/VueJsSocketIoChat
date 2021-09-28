@@ -6,7 +6,7 @@ module.exports = async (db,request,args=[]) => {
 		conn = await db.getConnection()
 		result = await conn.query(request,args)
 	} catch (error) {
-		console.log(err)
+		console.log(error)
 		err = error
 	} finally {
 		if (conn)

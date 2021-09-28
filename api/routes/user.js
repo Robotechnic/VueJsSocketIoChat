@@ -179,7 +179,7 @@ module.exports = (db) => {
 		if (!refreshToken) {
 			return res.status(401).json({
 				error: "No refresh token provided",
-				errorCode: "NO_REFRESH_TOKEN"
+				code: "NO_REFRESH_TOKEN"
 			})
 		}
 
@@ -189,14 +189,14 @@ module.exports = (db) => {
 			if (err.name == "JsonWebTokenError") {
 				return res.status(401).json({
 					error: "Refresh token is invalid",
-					errorCode: "INVALID_REFRESH_TOKEN"
+					code: "INVALID_REFRESH_TOKEN"
 				})
 			}
 
 			if (err.name == "TokenExpiredError") {
 				return res.status(401).json({
 					error: "Refresh token is expired",
-					errorCode: "EXPIRED_REFRESH_TOKEN"
+					code: "EXPIRED_REFRESH_TOKEN"
 				})
 			}
 
@@ -216,6 +216,7 @@ module.exports = (db) => {
 		)
 
 		if (err) {
+			console.log(err)
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
@@ -225,7 +226,7 @@ module.exports = (db) => {
 		if (result.length == 0) {
 			return res.status(401).json({
 				error: "This token disignate an user but it is not the owner of it",
-				errorCode: "WRONG_REFRESH_TOKEN_OWNER"
+				code: "WRONG_REFRESH_TOKEN_OWNER"
 			})
 		}
 

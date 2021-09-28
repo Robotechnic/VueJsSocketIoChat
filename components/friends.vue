@@ -30,7 +30,8 @@ export default {
 	},
 	async created() {
 		await this.$store.dispatch("user/updateFromLocalSorage")
-		this.fetch()
+		await this.fetch()
+		this.$emit("fetchEnd")
 	},
 	methods: {
 		async fetch() {
@@ -44,6 +45,9 @@ export default {
 			}
 
 			if (!json.code) {
+				json.forEach(element => {
+					element.status = "disconnected"
+				})
 				this.friends = json
 				return
 			}
@@ -62,7 +66,11 @@ export default {
 		},
 
 		updateUserStatus(status) {
-			this.friends.filter(element => element.userId === status.userId).status = status.status
+			const userId = this.friends.findIndex(element => element.userId === status.userId)
+			this.$set(this.friends,userId,{
+				...this.friends[userId],
+				status: status.status
+			})
 		}
 	}
 }

@@ -42,14 +42,7 @@ if (process.env.ORIGIN){
 	}))
 }
 
-const mariadb = require("mariadb")
-const db = mariadb.createPool({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME,
-	connectionLimit: 5
-})
+const db = require("./utils/dbInit")
 
 app.get("/",(req,res)=>{
 	res.json({

@@ -1,8 +1,13 @@
 <template>
-	<nuxt-link class="user" :to="'/'+user.id">
+	<nuxt-link class="user" :to="'/'+user.userId">
 		<UserImage :pseudo="user.pseudo" class="user__image" />
 		<p class="user__pseudo">{{user.pseudo}}</p>
-		<div class="user__status" :class="{connected:user.status == 'connected',disconnected:  !user.status || user.status == 'disconected'}">&nbsp;</div>
+		<div 
+			class="user__status" 
+			:class="{connected:user.status == 'connected'}"
+			>
+			&nbsp;
+		</div>
 	</nuxt-link>
 </template>
 
@@ -58,9 +63,7 @@ export default {
 			background:green;
 		}
 
-		&.disconnected {
-			background:red;
-		}
+		background:red;
 	}
 }
 </style>

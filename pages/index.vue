@@ -3,7 +3,7 @@
 		<header>
 			<h1 class="header__title">NuxtChat</h1>
 		</header>
-		<Friends :userId="$store.state.user.userId" ref="friends"/>
+		<Friends :userId="$store.state.user.userId" ref="friends" @fetchEnd="getConnectedFriends"/>
 		<nuxt-child ref="messagesView"/>
 		<MessageEditor class="editor" @send-message="sendMessage"/>
 	</div>
@@ -51,7 +51,12 @@ export default {
 			console.error("Connexion Error", err.message)
 		})
 
-		this.socket.on("status",this.$refs.friends.updateUserStatus)
+		this.socket.on("status",(status)=>{
+			console.log(status)
+			status.forEach((status)=>{
+				this.$refs.friends.updateUserStatus(status)
+			})
+		})
 	},
 	methods:{
 		sendMessage(message) {
@@ -61,6 +66,10 @@ export default {
 				creation: Date.now(),
 				userId: this.$store.state.user.userId
 			})
+		},
+
+		getConnectedFriends() {
+			this.socket.emit('getConnectedSockets',this.$store.state.user.accessToken)
 		}
 	}
 }

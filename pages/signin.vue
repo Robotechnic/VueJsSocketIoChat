@@ -64,10 +64,7 @@ export default {
 			})
 
 			if (!result.err) {
-				this.$router.push({
-					name:"conversation",
-					path:"/"
-				})
+				this.$router.push("/")
 				return
 			}
 

@@ -93,6 +93,12 @@ export const actions = {
 				id: json.id
 			})
 		}
+
+		switch (json.code) {
+			case "EXPIRED_REFRESH_TOKEN":
+				this.$router.push("/signin")
+			break
+		}
 	},
 
 	async logout({commit}) {

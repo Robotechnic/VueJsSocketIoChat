@@ -2,7 +2,7 @@
 	<nuxt-link class="user" :to="'/'+user.id">
 		<UserImage :pseudo="user.pseudo" class="user__image" />
 		<p class="user__pseudo">{{user.pseudo}}</p>
-		<div class="user__status" :class="{connected:user.status == 'connected',disconnected:user.status == 'disconected'}">&nbsp;</div>
+		<div class="user__status" :class="{connected:user.status == 'connected',disconnected:  !user.status || user.status == 'disconected'}">&nbsp;</div>
 	</nuxt-link>
 </template>
 
@@ -24,14 +24,18 @@ export default {
 @import "@/assets/scss/colors";
 .user {
 	display:flex;
+	justify-content: center;
 	align-items: center;
+	align-self: stretch;
 	margin: 10px 5px;
 	text-decoration: none;
 	color: $textColor;
 
 	&__image {
-		width:2em;
-		height:2em;
+		min-width: 2em;
+		min-height:2em;
+		max-width: 2em;
+		max-height:2em;
 		border-radius: 25%;
 	}
 
@@ -40,12 +44,15 @@ export default {
 		display: block;
 		margin-right: auto;
 		margin-left: 5px;
+		padding: 0px 10px;
 	}
 
 	&__status {
 		border-radius: 100%;
-		width:1.2em;
-		height:1.2em;
+		min-width: 1.2em;
+		min-height:1.2em;
+		max-width: 1.2em;
+		max-height:1.2em;
 
 		&.connected {
 			background:green;

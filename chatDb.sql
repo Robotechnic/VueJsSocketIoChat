@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS users (
 #friends schema
 CREATE TABLE IF NOT EXISTS friends (
 	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	userId SMALLINT UNSIGNED NOT NULL,
-	friendId SMALLINT UNSIGNED NOT NULL,
-	CONSTRAINT fk_friends_user_userId FOREIGN KEY (userId) REFERENCES users(id),
-	CONSTRAINT fk_friends_user_friendId FOREIGN KEY (friendId) REFERENCES users(id)
+	userId1 SMALLINT UNSIGNED NOT NULL,
+	userId2 SMALLINT UNSIGNED NOT NULL,
+	CONSTRAINT fk_friends_user_userId FOREIGN KEY (userId1) REFERENCES users(id),
+	CONSTRAINT fk_friends_user_friendId FOREIGN KEY (userId2) REFERENCES users(id)
 );
 
 #message shcema

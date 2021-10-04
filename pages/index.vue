@@ -4,7 +4,7 @@
 			<h1 class="header__title">NuxtChat</h1>
 		</header>
 		<Friends :userId="$store.state.user.userId" ref="friends" @fetchEnd="getConnectedFriends"/>
-		<nuxt-child ref="messagesView"/>
+		<nuxt-child ref="messagesView" class="mainContent"/>
 		<MessageEditor class="editor" @send-message="sendMessage"/>
 	</div>
 </template>
@@ -43,8 +43,8 @@ export default {
 			console.log("Connected to the server")
 		})
 
-		this.socket.on("error",()=>{
-			console.error("Socket error")
+		this.socket.on("error",(error)=>{
+			console.error("Socket error",error)
 		})
 
 		this.socket.on("connect_error",(err)=>{
@@ -112,24 +112,9 @@ header {
 .mainContent {
 	border-top-left-radius: 10px;
 	border-bottom-left-radius: 10px;
-}
-
-.homePresentation {
-	@extend .mainContent;
-	grid-area:main;
-	padding: 0px 15px;
-}
-
-.messageDisplay {
-	@extend .mainContent;
 	grid-area:main;
 	overflow-y: scroll;
 	background:$elementsBackground;
-
-	&__start {
-		margin-left: 20px;
-		margin-right: 20px;
-	}
 }
 
 .editor {

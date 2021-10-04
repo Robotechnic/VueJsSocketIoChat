@@ -1,35 +1,27 @@
+const token = require("../middleware/token")
 const tokenChecker = require("../middleware/token")
 const friendQuery = require("../utils/friendQuery")
+const fields = require("../utils/requiredFields")
 
 module.exports = (db) => {
 	const router = require("express").Router()
 
 	router.post("/userFriends", tokenChecker, async (req, res) => {
-		const userId = req.token.id
 
-		const {result,err} = await friendQuery.userFriends(db,userId)
+		const { result, err } = await friendQuery.userFriends(db, req.token.id)
 
 		if (err) {
-			console.log(err)
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
 			})
 		}
+
 		res.json(result)
 	})
 
-	router.post("/hasFriend", tokenChecker, async (req, res) => {
+	router.post("/hasFriend", tokenChecker, fields(["friendId"]), async (req, res) => {
 		const body = req.body
-
-		if (!body.friendId) {
-			return res.status(422).json({
-				error: "required fileds",
-				code: "EMPTY_FIELDS",
-				errorMessage: "This post route require a friendId field"
-			})
-		}
-
 		const userId = req.token.id
 		const { result, err } = await friendQuery.hasFriend(db,userId,body.friendId)
 
@@ -52,6 +44,129 @@ module.exports = (db) => {
 		})
 	})
 
+	router.post("/search", tokenChecker, fields(["pseudo"]), async (req,res)=>{
+		const body = req.body
+		let { result, err } = await friendQuery.allFriendsRelations(db, req.token.id)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		// let excludedIds = Array()
+		// for (let i in result) {
+		// 	excludedIds.push(result[i].userId)
+		// }
+
+		({ result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo,[22,12,18]))
+
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		res.json(result)
+	})
+
+	router.post("/sendrequest", tokenChecker, fields(["userId"]), async (req,res)=>{
+		let { result, err } = await friendQuery.hasFriend(db, req.token.id, req.body.userId)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		if (result.length > 0) {
+			return res.status(409).json({
+				error: "This is alrealy your friend",
+				code: "ALREALY_FRIEND"
+			})
+		}
+
+
+		({ result, err } = await friendQuery.addFriendRequest(db, req.token.id, req.body.userId))
+
+
+		if (err || result.affectedRows < 1) {
+			if (err.code == "ER_DUP_ENTRY") {
+				return res.status(409).json({
+					error: "Duplicate friend request",
+					code: "DUPLICATE_FRIEND_REQUEST"
+				})
+			}
+			
+			if (err.code == "ER_CONSTRAINT_FAILED") {
+				return res.status(406).json({
+					error: "User can't be friend with himself",
+					code: "USER_AUTO_FRIEND"
+				})
+			}
+			
+			console.error(err)
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+
+		return res.json({
+			error: null,
+			code: null
+		})
+	})
+
+	router.post("/getRequests", tokenChecker, async(req,res)=>{
+		const {result, err} = await friendQuery.getFriendRequest(db, req.token.id)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		res.json(result)
+	})
+
+	router.post("/getDemands", tokenChecker, async (req, res) => {
+		const { result, err } = await friendQuery.getFriendDemands(db, req.token.id)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		res.json(result)
+	})
+
+	router.post("/cancelRequest", tokenChecker, fields(["requestId"]), async (req, res)=>{
+		const { result, err } = await friendQuery.cancelFriendRequest(db, req.body.requestId)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		res.json({})
+	})
+
+	router.post("/acceptRequest", tokenChecker, fields(["requestId"]), async (req, res) => {
+		const { result, err } = await friendQuery.acceptFriendRequest(db, req.body.requestId)
+		if (err) {
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		res.json({})
+	})
 
 	return router
 }

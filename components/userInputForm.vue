@@ -4,10 +4,10 @@
 		<p v-if="error" class="form__error"> 
 			{{ error }}
 		</p>
-		<p class="form__success">
+		<div class="form__success">
 			<img src="@/assets/icons/tick.png" />
 			<slot name="successMessage"></slot>
-		</p>
+		</div>
 		<img src="@/assets/images/wait.svg" class="form__waitImg"/>
 		<slot></slot>
 	</form>

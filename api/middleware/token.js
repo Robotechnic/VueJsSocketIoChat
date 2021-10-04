@@ -17,14 +17,14 @@ module.exports = (req,res,next) => {
 		if (err.name === "JsonWebTokenError") {
 			return res.status(401).json({
 				error: "Token is invalid",
-				errorCode: "INVALID_TOKEN"
+				code: "INVALID_TOKEN"
 			})
 		}
 
 		if (err.name === "TokenExpiredError") {
 			return res.status(401).json({
 				error: "Token is expired",
-				errorCode: "EXPIRED_TOKEN"
+				code: "EXPIRED_TOKEN"
 			})
 		}
 

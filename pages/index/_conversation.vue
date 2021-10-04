@@ -30,37 +30,39 @@ export default {
 	}},
 
 	async fetch() {
-		let {json, err} = await this.$customFetch("/api/friends/hasFriend",{
+		let {json, error} = await this.$customFetch("/api/friends/hasFriend",{
 			friendId: this.$route.params.conversation,
 			token: this.$store.state.user.accessToken
 		})
 
-		if (err) {
-			this.err = true
-			return
+		if (!error) {
+			this.friend = json.friend
+			if (!json.hasFriend) {
+				this.hasFriend = false
+				return
+			}
+		} else {
+			const {errorCaptured} = this.$errorManager(json)
+			if (errorCaptured) {
+				this.error = true
+				return
+			}
 		}
+		
 
-		this.friend = json.friend
-
-		if (!json.hasFriend) {
-			this.hasFriend = false
-			return
-		}
-
-		({json, err} = await this.$customFetch("/api/messages/lastMessages",{
+		({json, error} = await this.$customFetch("/api/messages/lastMessages",{
 			friendId: this.$route.params.conversation,
 			token: this.$store.state.user.accessToken
 		}))
 
-		if (err) {
-			this.err = true
-			return
+		if (!error) {
+			this.messages = json.messages
+			this.$nextTick(()=>{
+				this.scrollToBottom()
+			})
 		}
 
-		this.messages = json.messages
-		this.$nextTick(()=>{
-			this.scrollToBottom()
-		})
+		this.error = this.$errorManager(json).errorCaptured
 	},
 
 	watch:{
@@ -91,5 +93,12 @@ export default {
 <style lang="scss" scoped>
 p {
 	padding: 0px 30px;
+}
+
+.messageDisplay {
+	&__start {
+		margin-left: 20px;
+		margin-right: 20px;
+	}
 }
 </style> 

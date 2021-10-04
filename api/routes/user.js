@@ -5,19 +5,13 @@ const jwt = require("jsonwebtoken")
 const escapeHTML = require("escape-html")
 const tokenGenerator = require("../utils/tokenGenerator")
 const dbQuery = require("../utils/dbQuery.js")
+const fields = require("../utils/requiredFields")
 
 module.exports = (db) => {
 	const route = require("express").Router()
 
-	route.post("/signup", async (req, res) => {
+	route.post("/signup", fields(["pseudo","password"]), async (req, res) => {
 		const body = req.body
-		if (!body.pseudo || !body.password) { //check if required fields are presents (pseudo and password)
-			return res.status(422).json({
-				error: "required fileds",
-				code: "EMPTY_FIELDS",
-				errorMessage: "This post route require a pseudo and a password field"
-			})
-		}
 
 		if (!pseudo.test(body.pseudo)) { //test is pseudo is valid with regex
 			return res.status(422).json({
@@ -69,15 +63,8 @@ module.exports = (db) => {
 		})
 	})
 
-	route.post("/signin", async (req, res) => {
+	route.post("/signin", fields(["pseudo","password"]), async (req, res) => {
 		const body = req.body
-		if (!body.pseudo || !body.password) { //check if required fields are presents
-			return res.status(422).json({
-				error: "required fileds",
-				code: "EMPTY_FIELDS",
-				errorMessage: "This post route require a pseudo and a password field"
-			})
-		}
 
 		let query = await dbQuery(
 			db,
@@ -145,15 +132,8 @@ module.exports = (db) => {
 		})
 	})
 
-	route.post("/userExist", async (req, res) => {
+	route.post("/userExist", fields(["pseudo"]), async (req, res) => {
 		const body = req.body
-		if (!body.pseudo) { //check if required fields are presents
-			return res.status(422).json({
-				error: "required fileds",
-				code: "EMPTY_FIELDS",
-				errorMessage: "This post route require a pseudo and a password field"
-			})
-		}
 
 		const { result, err } = await dbQuery(
 			db,
@@ -216,7 +196,6 @@ module.exports = (db) => {
 		)
 
 		if (err) {
-			console.log(err)
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"

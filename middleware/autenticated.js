@@ -10,6 +10,7 @@ export default async function ({app, store, redirect }) {
 			jwt.verify(refreshToken, process.env.TOKEN_SECRET)
 		} catch (err) {
 			if (err.name !== "JsonWebTokenError" && err.name !== "TokenExpiredError") {
+				console.log("Erreur d'identification")
 				console.error(err) // log error only if it's unknown
 			}
 			redirect("/signin")

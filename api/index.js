@@ -62,7 +62,11 @@ app.get("/",(req,res)=>{
 
 			"INVALID_TOKEN":"Current access token is invalid",
 			"EXPIRED_TOKEN":"Current token is outdated",
-			"INVALID_TOKEN_IP":"Ip stored in token is different than ip provided by user"
+			"INVALID_TOKEN_IP":"Ip stored in token is different than ip provided by user",
+
+			"DUPLICATE_FRIEND_REQUEST":"The current thing that you try to create alrealy exists",
+			"USER_AUTO_FRIEND":"You can't be friend with yourself in this chat",
+			"ALREALY_FRIEND":"This is alrealy your friend"
 		}
 	})
 })

@@ -21,7 +21,8 @@ body {
 /********************/
 /*** GLOBAL STYLE ***/
 /********************/
-button, input, textarea, select{
+button, input, textarea, select, a.button{
+	display: block;
 	background-color: $inputBackground;
 	color: $inputColor;
 	border: 1px solid $inputBorder;
@@ -47,9 +48,10 @@ textarea {
 /********************/
 /*** BUTTON STYLE ***/
 /********************/
-button, input[type="submit"], select {
+button, input[type="submit"], select, a.button {
 	cursor: pointer;
 	transition:color .5s, background .5s;
+	text-align: center;
 
 	&:hover {
 		background-color: lighten($color: $inputBackground, $amount: 10);

@@ -1,6 +1,9 @@
 <template>
 <div class="friends">
 	<h2 class="friends__title">Friends</h2>
+	<nuxt-link to="/friendsManager" class="friends__managerLink button">
+		Manage friends
+	</nuxt-link>
 	<p v-if="friends.length == 0 && !error">
 		You doesn't have any<br/>friends yet ;(
 	</p>
@@ -35,34 +38,19 @@ export default {
 	},
 	methods: {
 		async fetch() {
-			const {json,err} = await this.$customFetch("/api/friends/userFriends",{
+			const {json,error} = await this.$customFetch("/api/friends/userFriends",{
 				token: this.$store.state.user.accessToken
 			})
-			
-			if (!json || err) {
-				this.error = true
-				return
-			}
 
-			if (!json.code) {
+			if (!error) {
 				json.forEach(element => {
 					element.status = "disconnected"
 				})
 				this.friends = json
 				return
 			}
-
-			switch (json.code) {
-				case "INVALID_TOKEN":
-				case "EXPIRED_TOKEN":
-				case "INVALID_TOKEN_IP":
-					this.$store.dispatch("user/logout")
-					this.error = true
-					break
-				case "INTERNAL":
-					this.error = true
-					break
-			}
+			
+			this.error = this.$errorManager(json).errorCaptured
 		},
 
 		updateUserStatus(status) {
@@ -90,7 +78,7 @@ export default {
 	overflow-x: hidden;
 
 	&__title {
-		margin-bottom: 2px;
+		margin-bottom: 15px;
 		border-bottom: 1px solid $textColor;
 	}
 
@@ -99,6 +87,10 @@ export default {
 		flex-direction: column;
 		justify-content: flex-end;
 		min-width: 185px;
+	}
+
+	&__managerLink {
+		margin: 10px 5px;
 	}
 }
 </style>

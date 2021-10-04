@@ -1,24 +1,29 @@
+const headers = {
+	"Accept": "application/json",
+	"Content-Type": "application/json",
+}
+
 export default ({ app }, inject) => {
 	inject("customFetch", async (url,jsonContent) => {
-		const headers = {
-			"Accept": "application/json",
-			"Content-Type": "application/json",
-		}
-		let serverUrl = ""
-		
-		if (process.server){
-			serverUrl = process.env.ORIGIN
+		if (process.server)
 			headers.Cookie = `refreshToken=${app.$cookiz.get("refreshToken")}`
-		}
-
-		const result = await fetch(serverUrl + url, {
+		
+		const result = await fetch(app.$serverOrigin() + url, {
 			method: "POST",
 			headers,
 			body: JSON.stringify(jsonContent)
 		})
 
+		const json = await result?.json()
+		let error = false
+
+		if (!json || json.code) {
+			error = true
+		}
+		
 		return {
-			json: await result?.json(),
+			json,
+			error,
 			status: result.status
 		}
 	})

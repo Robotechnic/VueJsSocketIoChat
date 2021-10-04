@@ -48,17 +48,13 @@ export const getters = {
 
 export const actions = {
 	async signin({commit,dispatch},{ pseudo, password }) {
-		const {json,status} = await this.$customFetch("/api/user/signin",{
+		const {json,status,error} = await this.$customFetch("/api/user/signin",{
 			pseudo,
 			password
 		})
 		
 
-		if (!json) {
-			return { err: "INTERNAL" }
-		}
-
-		if (!json.error && status >= 200 && status <= 299) {
+		if (!error && status >= 200 && status <= 299) {
 			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
 				expireat: Date.now() + json.expirein
@@ -69,21 +65,21 @@ export const actions = {
 				id: json.id
 			})
 
-			dispatch("resetRefreshInterval", json.expirein - 10000)
+			// dispatch("resetRefreshInterval", json.expirein - 1000)
 			return {}
+		}
+
+		if (!json) {
+			return { err: "INTERNAL" }
 		}
 
 		return { err: json.code }
 	},
 
 	async updateToken({commit, dispatch}) {
-		const { json } = await this.$customFetch("/api/user/refresh", {})
+		const { json, error } = await this.$customFetch("/api/user/refresh", {})
 
-		if (!json) {
-			dispatch("logout")
-		}
-
-		if (!json.error) {
+		if (!error) {
 			commit("UPDATE_ACCESS_TOKEN", {
 				token: json.token,
 				expireat: Date.now() + json.expirein
@@ -92,12 +88,23 @@ export const actions = {
 				pseudo: json.pseudo,
 				id: json.id
 			})
+
+			// dispatch("resetRefreshInterval", json.expirein - 1000)
+		}
+
+		if (!json) {
+			dispatch("logout")
+			return
 		}
 
 		switch (json.code) {
 			case "EXPIRED_REFRESH_TOKEN":
 				this.$router.push("/signin")
 			break
+			default:
+				console.error(json.code)
+				this.$router.push("/signin")
+				break
 		}
 	},
 
@@ -134,6 +141,7 @@ export const actions = {
 
 	resetRefreshInterval(context, duration) {
 		context.commit("REFRESH_TIMEOUT",setTimeout(()=>{
+			console.log("auto refresh token")
 			context.dispatch("updateToken")
 		}, duration))
 	}

@@ -1,19 +1,12 @@
 const tokenChecker = require("../middleware/token")
 const dbQuery = require("../utils/dbQuery.js")
+const fields = require("../utils/requiredFields")
 
 module.exports = (db) => {
 	const router = require("express").Router()
 
-	router.post("/lastMessages", tokenChecker, async (req,res)=>{
+	router.post("/lastMessages", tokenChecker, fields(["friendId"]), async (req,res)=>{
 		const body = req.body
-
-		if (!body.friendId) {
-			return res.status(422).json({
-				error: "required fileds",
-				code: "EMPTY_FIELDS",
-				errorMessage: "This post route require a friendId field"
-			})
-		}
 
 		body.friendId = Number(body.friendId)
 
@@ -24,7 +17,6 @@ module.exports = (db) => {
 		)
 
 		if (err){
-			console.log(err)
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"

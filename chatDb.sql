@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	pseudo VARCHAR(15) NOT NULL UNIQUE,
 	password TEXT NOT NULL,
-	refreshToken TEXT UNIQUE
+	refreshToken TEXT
 );
 
 #friends schema

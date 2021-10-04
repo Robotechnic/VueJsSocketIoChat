@@ -25,6 +25,7 @@ export const mutations = {
 	CLEAR_TOKEN(state) {
 		state.accessToken = ""
 		state.pseudo = ""
+		state.userId = 0
 		if (process.server) return
 		localStorage.setItem("accessToken", "")
 		localStorage.setItem("expireat", "")
@@ -108,10 +109,12 @@ export const actions = {
 		}
 	},
 
-	async logout({commit}) {
-		await this.$customFetch("/api/user/logout", {})
-		commit("user/CLEAR_TOKENS")
-		this.$route.push("/signup")
+	async logout({commit,state}) {
+		await this.$customFetch("/api/user/logout", {
+			token: state.accessToken
+		})
+		commit("CLEAR_TOKEN")
+		this.$router.push("/signin")
 	},
 
 	async updateFromLocalSorage(context) {

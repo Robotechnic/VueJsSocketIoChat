@@ -12,7 +12,7 @@
 			</template>
 		</SearchBar>
 		<div class="friendManager__requestContener">
-			<RequestManager url="/api/friends/getDemands" :userId="$store.state.user.userId" title="Incoming Friend requests" ref="getDemands">
+			<RequestManager ref="getDemands" url="/api/friends/getDemands" :userId="$store.state.user.userId" title="Incoming Friend requests" >
 				<template #default="slotProps">
 					<ConfirmUser 
 						:user="slotProps.request"
@@ -22,7 +22,7 @@
 				</template>
 			</RequestManager>
 
-			<RequestManager url="/api/friends/getRequests" :userId="$store.state.user.userId" title="Pending Friend requests" ref="getRequests">
+			<RequestManager ref="getRequests" url="/api/friends/getRequests" :userId="$store.state.user.userId" title="Pending Friend requests">
 				<template #default="slotProps">
 					<BaseUser :user="slotProps.request"/>
 				</template>

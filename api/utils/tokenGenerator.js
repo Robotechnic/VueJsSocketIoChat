@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken")
 const ms = require("ms")
 
-//generate refresh token
-refreshToken = (id) => jwt.sign({
+// generate refresh token
+const refreshToken = (id) => jwt.sign({
 	id
 }, process.env.TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRE })
 
-//generate access token
-accessToken = (id, ip) => [
+// generate access token
+const accessToken = (id, ip) => [
 	jwt.sign({
 		id,
 		ip

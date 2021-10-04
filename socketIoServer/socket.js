@@ -1,11 +1,10 @@
 const { Server } = require("socket.io")
-const tokenChecker = require("./middlewares/token");
 
 const dbQuery = require("../api/utils/dbQuery")
 const friendQuery = require("../api/utils/friendQuery")
+const tokenChecker = require("./middlewares/token")
 
-
-export default function () {
+module.exports = function() {
 	this.nuxt.hook("listen", (server) => {
 		console.log("Create socket instance")
 		const io = new Server(server, {
@@ -40,7 +39,7 @@ export default function () {
 			})
 
 			socket.on("message", async (token,message) => {
-				//check db
+				// check db
 				let { result, err } = await friendQuery.hasFriend(io.db,socket.token.id,message.to)
 
 				if (err) {
@@ -48,7 +47,7 @@ export default function () {
 					return
 				}
 
-				if (result.length == 0) {
+				if (result.length === 0) {
 					return
 				}
 
@@ -84,15 +83,15 @@ export default function () {
 					return
 				}
 				
-				let friendsId = Array()
+				const friendsId = []
 				result.forEach((friend)=>{
 					friendsId.push(friend.userId)
 				})
 				
-				let connected = Array()
+				const connected = []
 				const sockets = await io.fetchSockets()
 				sockets.forEach((socket)=>{
-					if (friendsId.indexOf(socket.token.id)>-1) {
+					if (friendsId.includes(socket.token.id)) {
 						connected.push({
 							userId: socket.token.id,
 							status:"connected"
@@ -106,8 +105,8 @@ export default function () {
 			socket.on("error", (err) => {
 				console.log("Socket error",err)
 				if (err) {
-					if (err.message == "EXPIRED_TOKEN" ||
-						err.message == "INVALID_TOKEN") {
+					if (err.message === "EXPIRED_TOKEN" ||
+						err.message === "INVALID_TOKEN") {
 						socket.emit("error", err)
 						socket.broadcast.emit("status",[{
 							userId: socket.token.id,

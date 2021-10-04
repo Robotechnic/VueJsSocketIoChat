@@ -1,17 +1,17 @@
+const path = require("path")
 const express = require("express")
 const app = express()
 
 require("dotenv").config({
-	path: __dirname +"/.env"
+	path: path.join(__dirname,"/.env")
 })
 
 const helmet = require("helmet")
 app.use(helmet())
 
-const bodyparser = require("body-parser")
 app.use((req, res, next)=>{
-	bodyparser.json()(req,res,(err)=>{
-		if (err?.status == 400){
+	express.json()(req,res,(err)=>{
+		if (err?.status === 400){
 			res.status(400).json({
 				error:"invalid json",
 				errorCode:"INVALID_JSON",

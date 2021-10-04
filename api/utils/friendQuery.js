@@ -18,7 +18,7 @@ module.exports = {
 		return await dbQuery(
 			db,
 			"SELECT " +
-				"u.id AS userId FROM users AS u " +
+				"u.id AS userId,pseudo FROM users AS u " +
 			"INNER JOIN " +
 				"friends AS f1 ON f1.userId1 = u.id OR f1.userId2 = u.id " +
 			"WHERE " +

@@ -1,9 +1,25 @@
 <template>
 	<div class="chatContener">
-		<header>
-			<h1 class="header__title">NuxtChat</h1>
+		<header class="chatContener__header">
+			<h1 class="chatContener__header__title">NuxtChat</h1>
+			<BaseUser :user="$store.state.user" class="chatContener__header__currentUser"/>
+			<nav class="chatContener__header__actionsContener">
+				<button 
+					class="noStyle chatContener__header__actionsContener__action"
+					@click="$router.push('/settings')"
+				>
+					<img src="@/assets/icons/settings.svg" />
+				</button>
+
+				<button 
+					class="noStyle chatContener__header__actionsContener__action"
+					@click="$store.dispatch('user/logout')"
+				>
+					<img src="@/assets/icons/logout.svg" />
+				</button>
+			</nav>
 		</header>
-		<Friends :userId="$store.state.user.userId" ref="friends" @fetchEnd="getConnectedFriends"/>
+		<Friends ref="friends" :userId="$store.state.user.userId" @fetchEnd="getConnectedFriends"/>
 		<nuxt-child ref="messagesView" class="mainContent"/>
 		<MessageEditor class="editor" @send-message="sendMessage"/>
 	</div>
@@ -53,8 +69,10 @@ export default {
 
 		this.socket.on("status",(status)=>{
 			console.log(status)
-			status.forEach((status)=>{
-				this.$refs.friends.updateUserStatus(status)
+			this.$nextTick(()=>{
+				status.forEach((status)=>{
+					this.$refs.friends.updateUserStatus(status)
+				})
 			})
 		})
 
@@ -98,14 +116,35 @@ export default {
 	grid-template-columns: max-content 1fr;
 	grid-template-rows: max-content 1fr max-content;
 	height:100vh;
-}
 
-header {
-	grid-area:header;
-	padding-left:20px;
+	&__header {
+		grid-area:header;
+		padding-left:20px;
 
-	.header__title {
-		margin:2px;
+		display: flex;
+		justify-content: right;
+		align-items: center;
+
+		&__title {
+			margin:2px;
+			margin-right: auto;
+		}
+
+		&__actionsContener {
+			display: flex;
+
+			&__action {
+				padding:0;
+				margin: 0px 5px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				img {
+					width: 50px;
+					height: 50px;
+				}
+			}
+		}
 	}
 }
 

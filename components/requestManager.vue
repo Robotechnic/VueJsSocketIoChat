@@ -35,13 +35,13 @@ export default {
 			required: true
 		}
 	},
-	mounted() {
-		this.update()
-	},
 	data() {return {
 		requestsList: [],
 		error: false
 	}},
+	mounted() {
+		this.update()
+	},
 	methods : {
 		async update() {
 			const {json, error} = await this.$customFetch(this.url,{

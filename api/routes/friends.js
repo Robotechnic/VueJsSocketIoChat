@@ -1,4 +1,3 @@
-const token = require("../middleware/token")
 const tokenChecker = require("../middleware/token")
 const friendQuery = require("../utils/friendQuery")
 const fields = require("../utils/requiredFields")
@@ -54,12 +53,12 @@ module.exports = (db) => {
 			})
 		}
 
-		// let excludedIds = Array()
-		// for (let i in result) {
-		// 	excludedIds.push(result[i].userId)
-		// }
+		const excludedIds = []
+		for (const i in result) {
+			excludedIds.push(result[i].userId)
+		}
 
-		({ result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo,[22,12,18]))
+		({ result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo, excludedIds))
 
 		if (err) {
 			return res.status(500).json({
@@ -92,14 +91,14 @@ module.exports = (db) => {
 
 
 		if (err || result.affectedRows < 1) {
-			if (err.code == "ER_DUP_ENTRY") {
+			if (err.code === "ER_DUP_ENTRY") {
 				return res.status(409).json({
 					error: "Duplicate friend request",
 					code: "DUPLICATE_FRIEND_REQUEST"
 				})
 			}
 			
-			if (err.code == "ER_CONSTRAINT_FAILED") {
+			if (err.code === "ER_CONSTRAINT_FAILED") {
 				return res.status(406).json({
 					error: "User can't be friend with himself",
 					code: "USER_AUTO_FRIEND"
@@ -146,7 +145,7 @@ module.exports = (db) => {
 
 	router.post("/cancelRequest", tokenChecker, fields(["requestId"]), async (req, res)=>{
 		const { result, err } = await friendQuery.cancelFriendRequest(db, req.body.requestId)
-		if (err) {
+		if (err && result.affectedRows >= 1) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
@@ -158,7 +157,7 @@ module.exports = (db) => {
 
 	router.post("/acceptRequest", tokenChecker, fields(["requestId"]), async (req, res) => {
 		const { result, err } = await friendQuery.acceptFriendRequest(db, req.body.requestId)
-		if (err) {
+		if (err && result.affectedRows >= 1) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"

@@ -2,9 +2,9 @@
 	<nav class="searchBar">
 		<input 
 			type="text"
+			v-model="searchText"
 			class="searchBar__input" 
 			placeholder="Search for a friend" 
-			v-model="searchText"
 			@focus="displayResult = true" 
 			@blur="displayResult = false"
 			@input="searchForResult"
@@ -14,8 +14,8 @@
 			<li v-else-if="searchText.length < minLenght">{{ defaultResult }}</li>
 			<li v-else-if="results.length == 0">{{ noResult }}</li>
 			<li 
-				v-else
 				v-for="result,index in results"
+				v-else
 				:key="index"
 				class="searchBar__result__user"
 				@mousedown="processResult(result)"

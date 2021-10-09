@@ -21,7 +21,11 @@
 		</header>
 		<Friends ref="friends" :userId="$store.state.user.userId" @fetchEnd="getConnectedFriends"/>
 		<nuxt-child ref="messagesView" class="mainContent"/>
-		<MessageEditor class="editor" @send-message="sendMessage"/>
+		<MessageEditor 
+			class="editor"
+			:class="{display : $route.params.conversation }"
+			@send-message="sendMessage"
+			/>
 	</div>
 </template>
 
@@ -158,6 +162,10 @@ export default {
 
 .editor {
 	grid-area:editor;
+	display: none;
+	&.display {
+		display: block;
+	}
 }
 
 </style>

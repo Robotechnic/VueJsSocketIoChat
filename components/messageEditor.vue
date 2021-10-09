@@ -1,6 +1,17 @@
 <template>
-	<div class="editor" contenteditable="true" @keyup="formater" @keydown.enter="sendMessage">
-
+	<div class="editor">
+		<textarea 
+			v-model="message"
+			class="editor__textArea textContener"
+			@keydown.enter="sendMessage"
+		></textarea>
+		<!-- eslint-disable vue/no-v-html -->
+		<div 
+			class="editor__result textContener"
+			v-html="markdown"
+		>
+		</div>
+		<!-- eslint-enable -->
 	</div>
 </template>
 
@@ -16,6 +27,33 @@ export default {
 	emits:[
 		"send-message"
 	],
+	data() {return{
+		message:"",
+		forbidenKeys:[
+			"Shift",
+			"Backspace",
+			"CapsLock",
+			"Control",
+			"ArrowRight",
+			"ArrowLeft",
+			"ArrowTop",
+			"ArrowBottom"
+		]
+	}},
+	computed: {
+		markdown() {
+			return this.message
+				.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<i>*$1*</i>")
+				.replace(/__([^_]+)__/g, "<i>__$1__</i>")
+				.replace(/\*\*([^*]+)\*\*/g, "<b>**$1**</b>")
+				.replace(/(?<!_)_([^_]+)_(?!_)/g, "<u>_$1_</u>")
+				.replace(/-([^-]+)-/g, "<s>-$1-</s>")
+				.replace(/ /g,"&nbsp;")
+				.replace(/\t/g,"&tab;")
+				.replace(/\n/g,"<br/>")
+				+ "&nbsp;"
+		}
+	},
 	watch:{
 		receiver(newVal, oldVal){
 			this.setPlaceholder(newVal)
@@ -25,24 +63,11 @@ export default {
 		this.setPlaceholder(this.receiver)
 	},
 	methods:{
-		formater(event){
-			const target = event.target
-			
-			// reset the input to set the placeholder
-			if (target.innerHTML === "<br>" || target.innerHTML === "<br/>"){
-				target.innerHTML = ""
-				// return
-			}
-
-			// run the formater
-
-		},
 		sendMessage(event){
-			const target = event.target
-			if (!event.shiftKey){
+			if (!event.shiftKey && this.message.length > 0){
 				event.preventDefault()
-				this.$emit("send-message",target.innerText)
-				target.innerHTML = ""
+				this.$emit("send-message",this.message)
+				this.message = ""
 			}
 		},
 		setPlaceholder(receiver){
@@ -64,16 +89,41 @@ export default {
 
 .editor {
 	border-top-left-radius: 10px;
-	padding: 10px 5px;
 	background: $elementsBackground;
-	min-height:3em;
-	max-height:5em;
+	min-height: 4em;
+	max-height: 6em;
+	position: relative;
 	overflow-y: scroll;
+	padding: 2px;
 
-	&:empty::before {
-		content: var(--placeholder);
-		color: darken($color: $textColor, $amount: 50);
-		pointer-events: none;
+	&__result {
+		position: absolute;
+		width: min-content;
+	}
+
+	.textContener {
+		margin: 0px;
+		height: max-content;
+		line-height: 1.1em;
+		tab-size: 1.5;
+		padding: 5px 10px;
+	}
+
+	&__textArea {
+		position: absolute;
+		resize: none;
+		color: transparent;
+		caret-color:$textColor;
+		background: transparent;
+		border: none;
+		width: 99%;
+		outline:none;
+
+		&:empty::before {
+			content: var(--placeholder);
+			color: darken($color: $textColor, $amount: 50);
+			pointer-events: none;
+		}
 	}
 }
 </style>

@@ -31,12 +31,17 @@ export default {
 		processUserInfo() {
 			this.$emit("newUserData",this)
 		},
-		setSuccess(redirectUrl, redirectTimeout){
+		setSuccess(redirectUrl, redirectTimeout, redirect=true){
 			this.$refs.form.classList.remove("wait")
 			this.$refs.form.classList.add("success")
 
 			setTimeout(()=>{
-				this.$router.push(redirectUrl)
+				if (redirect){
+					this.$router.push(redirectUrl)
+				} else {
+					this.$refs.form.classList.remove("success")
+					this.error = ""
+				}
 			},redirectTimeout)
 		},
 		setWait() {
@@ -61,10 +66,9 @@ export default {
 	border-radius:10px;
 	background:$elementsBackground;
 
-	width:clamp(50%, 200px, 400px);
+	width:clamp(250px, 45%, 450px);
 
 	display:block;
-	margin:auto;
 
 	&__title{
 		width: 100%;

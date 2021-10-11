@@ -1,8 +1,9 @@
 <template>
+<section class="signin">
 	<UserInputForm :error="error" title="Sign In" @newUserData="processUserInfo">
 		<template #successMessage>
-			Connexion réussie.<br />
-			Vous serez redirigé dans quelques secondes
+			Succesfull conection.<br />
+			You will be redirected in some seconds.
 		</template>
 		<InputGroup
 			v-model="pseudo"
@@ -18,12 +19,13 @@
 		/>
 		<input type="submit" value="Se connecter" />
 		<p>
-			Pas encore de compte ?
+			New here ?
 			<nuxt-link to="/signup">
-				Créez en un
+				Create an account !
 			</nuxt-link>
 		</p>
 	</UserInputForm>
+</section>
 </template>
 
 <script>
@@ -44,23 +46,23 @@ export default {
 		async processUserInfo(form) {
 			const target = form.$el
 
-			if (target.pseudo.value.length === 0){
+			if (this.pseudo.length === 0){
 				target.pseudo.focus()
-				form.setError("Veuillez mettre un pseudo")
+				form.setError("Please provide a pseudo")
 				return
 			}
 
-			if (target.password.value.length === 0){
+			if (this.password.length === 0){
 				target.password.focus()
-				form.setError("Veuillez mettre un mot de passe")
+				form.setError("Please provide a password")
 				return
 			}
 
 			form.setWait()
 
 			const result = await this.$store.dispatch("user/signin",{
-				pseudo: target.pseudo.value,
-				password: target.password.value
+				pseudo: this.pseudo,
+				password: this.password
 			})
 
 			if (!result.err) {
@@ -70,23 +72,23 @@ export default {
 
 			switch (result.err) {
 				case "EMPTY_FIELDS":
-					form.setError("Veuillez remplir tous les champs")
-					if (target.pseudo.value.length === 0)
+					form.setError("Please fill up all fields.")
+					if (this.pseudo.length === 0)
 						target.pseudo.focus()
 					else
 						target.password.focus()
 					break
 				case "USER_NOT_EXIST":
-					form.setError("Le nom d'utilisateur est invalide")
+					form.setError("The pseudo doesn't exist")
 					this.password = ""
 					this.pseudo = ""
 					break
 				case "WRONG_PASSWORD":
-					form.setError("Le mot de passe est invalide")
+					form.setError("Invalid password")
 					this.password = ""
 					break
 				default:
-					form.setError("Une erreur interne est survenue, veuillez recommencer plus tard")
+					form.setError("Internal error appened. Please, retry later.")
 					this.password = ""
 					break
 			}
@@ -96,5 +98,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/scss/colors";
+.signin {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 </style>

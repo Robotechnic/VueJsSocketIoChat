@@ -22,6 +22,11 @@ export const mutations = {
 		localStorage.setItem("pseudo", pseudo)
 		localStorage.setItem("userId", id)
 	},
+	UPDATE_PSEUDO(state, pseudo){
+		state.pseudo = pseudo
+		if (process.server) return
+		localStorage.setItem("pseudo", pseudo)
+	},
 	CLEAR_TOKEN(state) {
 		state.accessToken = ""
 		state.pseudo = ""
@@ -75,6 +80,25 @@ export const actions = {
 		}
 
 		return { err: json.code }
+	},
+
+	async updatePseudo({commit, state},pseudo) {
+		const {json, error} = await this.$customFetch("/api/user/updatePseudo",{
+			pseudo,
+			token: state.accessToken
+		})
+
+		if (!error) {
+			commit("UPDATE_PSEUDO",json.pseudo)
+			return {
+				result: json
+			}
+		}
+
+		return {
+			json,
+			err: error
+		}
 	},
 
 	async updateToken({commit, dispatch}) {

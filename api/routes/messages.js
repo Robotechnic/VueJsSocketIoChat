@@ -1,6 +1,6 @@
 const tokenChecker = require("../middleware/token")
 const dbQuery = require("../utils/dbQuery.js")
-const fields = require("../utils/requiredFields")
+const fields = require("../middleware/requiredFields")
 
 module.exports = (db) => {
 	const router = require("express").Router()

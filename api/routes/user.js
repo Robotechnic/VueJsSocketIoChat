@@ -5,7 +5,8 @@ const escapeHTML = require("escape-html")
 const { password, pseudo } = require("../utils/regex")
 const tokenGenerator = require("../utils/tokenGenerator")
 const dbQuery = require("../utils/dbQuery.js")
-const fields = require("../utils/requiredFields")
+const fields = require("../middleware/requiredFields")
+const tokenChecker = require("../middleware/token")
 
 module.exports = (db) => {
 	const route = require("express").Router()
@@ -239,6 +240,32 @@ module.exports = (db) => {
 
 		return res.json({
 			error: null
+		})
+	})
+
+	route.post("/updatePseudo", tokenChecker, fields(["pseudo"]), async (req,res)=>{
+		const {err} = await dbQuery(
+			db,
+			"UPDATE users SET pseudo=? WHERE id=?",
+			[req.body.pseudo, req.token.id]
+		)
+		if (err) {
+			if (err.code === "ER_DUP_ENTRY") {
+				return res.status(409).json({
+					error: "Pseudo alrealy exist",
+					code: "PSEUDO_EXIST"
+				})
+			}
+			console.error(err)
+			return res.status(500).json({
+				error: "Internal error",
+				code: "INTERNAL"
+			})
+		}
+
+		return res.json({
+			error: null,
+			pseudo: req.body.pseudo
 		})
 	})
 

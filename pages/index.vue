@@ -1,24 +1,6 @@
 <template>
 	<div class="chatContener">
-		<header class="chatContener__header">
-			<h1 class="chatContener__header__title">NuxtChat</h1>
-			<BaseUser :user="$store.state.user" class="chatContener__header__currentUser"/>
-			<nav class="chatContener__header__actionsContener">
-				<button 
-					class="noStyle chatContener__header__actionsContener__action"
-					@click="$router.push('/settings')"
-				>
-					<img src="@/assets/icons/settings.svg" />
-				</button>
-
-				<button 
-					class="noStyle chatContener__header__actionsContener__action"
-					@click="$store.dispatch('user/logout')"
-				>
-					<img src="@/assets/icons/logout.svg" />
-				</button>
-			</nav>
-		</header>
+		<Header class="chatContener__header"/>
 		<Friends ref="friends" :userId="$store.state.user.userId" @fetchEnd="getConnectedFriends"/>
 		<nuxt-child ref="messagesView" class="mainContent"/>
 		<MessageEditor 
@@ -123,32 +105,6 @@ export default {
 
 	&__header {
 		grid-area:header;
-		padding-left:20px;
-
-		display: flex;
-		justify-content: right;
-		align-items: center;
-
-		&__title {
-			margin:2px;
-			margin-right: auto;
-		}
-
-		&__actionsContener {
-			display: flex;
-
-			&__action {
-				padding:0;
-				margin: 0px 5px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				img {
-					width: 50px;
-					height: 50px;
-				}
-			}
-		}
 	}
 }
 

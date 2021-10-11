@@ -1,10 +1,10 @@
 <template>
-	<section class="formContener">
+	<section class="signup">
 		<UserInputForm title="Sign Up" @newUserData="processUserInfo">
 			<template #successMessage>
-				Vous avez été enregistré avec succés.
+				You have been registered succesfully.
 				<br />
-				Vous serez redirigé vers la page de connexion dans quelques secondes.
+				You will be redirected to singnin page in a few seconds.
 			</template>
 			<InputGroup 
 				v-model="pseudo"
@@ -14,11 +14,11 @@
 				>
 				<InputGroupValidator 
 					:validator="pseudoLength"
-					message="Le pseudo doit faire entre 3 et 15 caractères"
+					message="The pseudo must be between 3 and 15 char long"
 					/>
 				<InputGroupValidator 
 					:validator="pseudoForbidden"
-					message="Le pseudo ne doit pas contenir de caratères interdits (<>&quot;_'=;/\)"
+					message="The pseudo can't contain (<>&quot;_'=;/\)"
 					/>
 			</InputGroup>
 
@@ -30,23 +30,23 @@
 				>
 				<InputGroupValidator 
 					:validator="passwordLenght"
-					message="Le mot de passe doit faire au moins 8 caractères"
+					message="The password must be at least 8 char long"
 					/>
 				<InputGroupValidator 
 					:validator="passwordLowerCase"
-					message="Le mot de passe doit contenir au moins une lettre minuscule"
+					message="The password must contain at least one lower case letters"
 					/>
 				<InputGroupValidator 
 					:validator="passwordNumber"
-					message="Le mot de passe doit contenir au moins un chiffre"
+					message="The password must contain at least one number"
 					/>
 				<InputGroupValidator 
 					:validator="passwordUpperCase"
-					message="Le mot de passe doit contenir au moins une lettre majuscule"
+					message="The password must contain at least one uper case letters"
 					/>
 				<InputGroupValidator 
 					:validator="passwordSpetialChar"
-					message="Le mot de passe doit contenir au moins un caratère spécial (*.!@$%^&amp;(){}[\]:;<>,.?/~_+-=|)"
+					message="The password must contain at least one spetial char (*.!@$%^&amp;(){}[\]:;<>,.?/~_+-=|)"
 					/>
 				
 			</InputGroup>
@@ -59,14 +59,14 @@
 				>
 				<InputGroupValidator 
 					:validator="passwordMatch"
-					message="Les mots de passes ne correspondent pas"
+					message="The password don't match"
 					/>
 			</InputGroup>
 			<input type="submit" value="Create account" class="form__input">
 			<p>
-				Déjà un compte ?
+				Alrealy an acount?
 				<nuxt-link to="/signin">
-					Connectez vous
+					Sign in
 				</nuxt-link>
 			</p>
 		</UserInputForm>
@@ -135,25 +135,12 @@ export default {
 			// send data to api
 			form.setWait(target)
 
-			const result = await fetch("/api/user/signup", {
-				method: "POST",
-				headers: {
-					"Accept": "application/json",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					pseudo: target.pseudo.value,
-					password: target.password.value
-				})
+			const {json, error} = await this.$customFetch("/api/user/signup", {
+				pseudo: target.pseudo.value,
+				password: target.password.value
 			})
 
-			const json = await result?.json()
-
-			if (!json) { // if the server doesn't give json response, display error message
-				form.setError("Un erreur interne est suvenue, veuillez recommencer plus tard.")
-			}
-
-			if (!json.error) {// if there is no error, display valid message 
+			if (!error) {// if there is no error, display valid message 
 				form.setSuccess("/signin",2000)
 				return
 			}
@@ -161,25 +148,36 @@ export default {
 			// process json error if is there
 			switch (json.code) {
 				case "EMPTY_FIELDS":
-					form.setError("Veuillez remplir tous les champs")
+					form.setError("Please, fill up all fields")
 					break
 				case "INVALID_FIELD_PSEUDO":
 					target.pseudo.focus()
-					form.setError("Le pseudo est invalide")
+					form.setError("The pseudo isn't a valid one")
 					break
 				case "INVALID_FIELD_PASSWORD":
 					target.password.focus()
-					form.setError("Le mot de passe est invalide")
+					form.setError("The password isn't a valid one")
 					break
 				case "PSEUDO_EXIST":
 					target.pseudo.focus()
-					form.setError("Le pseudo existe déjà")
+					form.setError("Your pseudo alrealy exists")
 					break
 				default:
-					form.setError("Une erreur interne est survenue, recommencez plus tard")
+					form.setError("An internal error appened. Please, retry later")
 					break
 			}
 		}
 	}
 }
 </script>
+
+
+<style lang="scss" scoped>
+.signup {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+</style>

@@ -10,7 +10,7 @@ export default {
 	props: {
 		validator: {
 			type: Boolean,
-			required: true
+			default: null
 		},
 		message: {
 			type: String,

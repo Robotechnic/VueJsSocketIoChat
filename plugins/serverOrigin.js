@@ -3,7 +3,7 @@ export default ({ app }, inject) => {
 		let serverUrl = ""
 
 		if (process.server) {
-			serverUrl = process.env.ORIGIN
+			serverUrl = `${process.env.ORIGIN}:${process.env.PORT}`
 		}
 		return serverUrl
 	})

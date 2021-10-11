@@ -5,6 +5,7 @@ export default async function ({app, store, redirect }) {
 		const refreshToken = app.$cookiz.get("refreshToken")
 		if (!refreshToken){
 			redirect("/signin")
+			return
 		}
 		try {
 			jwt.verify(refreshToken, process.env.TOKEN_SECRET)
@@ -14,6 +15,7 @@ export default async function ({app, store, redirect }) {
 				console.error(err) // log error only if it's unknown
 			}
 			redirect("/signin")
+			return
 		}
 		await store.dispatch("user/updateFromLocalSorage")
 	} else {

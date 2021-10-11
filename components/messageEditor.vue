@@ -99,14 +99,7 @@ export default {
 	&__result {
 		position: absolute;
 		width: min-content;
-	}
-
-	.textContener {
-		margin: 0px;
-		height: max-content;
-		line-height: 1.1em;
-		tab-size: 1.5;
-		padding: 5px 10px;
+		z-index:1;
 	}
 
 	&__textArea {
@@ -118,12 +111,21 @@ export default {
 		border: none;
 		width: 99%;
 		outline:none;
+		z-index:2;
 
 		&:empty::before {
 			content: var(--placeholder);
 			color: darken($color: $textColor, $amount: 50);
 			pointer-events: none;
 		}
+	}
+
+	.textContener {
+		margin: 0px;
+		height: max-content;
+		line-height: 1.1em;
+		tab-size: 1.5;
+		padding: 5px 10px;
 	}
 }
 </style>

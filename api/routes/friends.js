@@ -45,8 +45,8 @@ module.exports = (db) => {
 
 	router.post("/search", tokenChecker, fields(["pseudo"]), async (req,res)=>{
 		const body = req.body
-		let { result, err } = await friendQuery.allFriendsRelations(db, req.token.id)
-		if (err) {
+		const relations = await friendQuery.allFriendsRelations(db, req.token.id)
+		if (relations.err) {
 			return res.status(500).json({
 				error: "Internal error",
 				code: "INTERNAL"
@@ -54,11 +54,12 @@ module.exports = (db) => {
 		}
 
 		const excludedIds = []
-		for (const i in result) {
-			excludedIds.push(result[i].userId)
-		}
+		relations.result.forEach((element)=>{
+			excludedIds.push(element.userId)
+		})
 
-		({ result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo, excludedIds))
+	
+		const { result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo, excludedIds)
 
 		if (err) {
 			return res.status(500).json({

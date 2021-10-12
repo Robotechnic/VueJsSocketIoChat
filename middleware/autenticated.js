@@ -17,11 +17,9 @@ export default async function ({app, store, redirect }) {
 			redirect("/signin")
 			return
 		}
-		await store.dispatch("user/updateFromLocalSorage")
-	} else {
-		await store.dispatch("user/updateFromLocalSorage")
-		if (!store.getters["user/connected"]) {
-			redirect("/signin")
-		}
+	}
+	await store.dispatch("user/updateFromLocalSorage")
+	if (!store.getters["user/connected"]) {
+		redirect("/signin")
 	}
 }

@@ -1,9 +1,15 @@
 const tokenChecker = require("../middleware/token")
 const friendQuery = require("../utils/friendQuery")
 const fields = require("../middleware/requiredFields")
+const io = require("socket.io-client")
 
 module.exports = (db) => {
 	const router = require("express").Router()
+	router.socket = io(`${process.env.HOST}:${process.env.WEBCOCKET_PORT}`,{
+		auth: {
+			token: router.socketAuthToken
+		}
+	})
 
 	router.post("/userFriends", tokenChecker, async (req, res) => {
 
@@ -59,7 +65,7 @@ module.exports = (db) => {
 		})
 
 	
-		const { result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo, excludedIds)
+		const { result, err } = await friendQuery.searchFriend(db, req.token.id, body.pseudo, [1])
 
 		if (err) {
 			return res.status(500).json({

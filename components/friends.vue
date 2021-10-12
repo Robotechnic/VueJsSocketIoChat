@@ -1,9 +1,11 @@
 <template>
 <div class="friends">
 	<h2 class="friends__title">Friends</h2>
-	<nuxt-link to="/friendsManager" class="friends__managerLink button">
-		Manage friends
-	</nuxt-link>
+	<NumberDisplay :number="requests">
+		<nuxt-link to="/friendsManager" class="friends__managerLink button">
+			Manage friends
+		</nuxt-link>
+	</NumberDisplay>
 	<p v-if="friends.length == 0 && !error">
 		You doesn't have any<br/>friends yet ;(
 	</p>
@@ -28,6 +30,7 @@ export default {
 	data() {
 		return {
 			friends: [],
+			requests: 0,
 			error:false
 		}
 	},
@@ -38,6 +41,7 @@ export default {
 	},
 	methods: {
 		async fetch() {
+			this.requestCount()
 			const {json,error} = await this.$customFetch("/api/friends/userFriends",{
 				token: this.$store.state.user.accessToken
 			})
@@ -50,6 +54,18 @@ export default {
 				return
 			}
 			
+			this.error = this.$errorManager(json).errorCaptured
+		},
+
+		async requestCount() {
+			const {json, error} = await this.$customFetch("/api/friends/getDemands",{
+				token: this.$store.state.user.accessToken
+			})
+
+			if (!error) {
+				this.requests = json.length
+			}
+
 			this.error = this.$errorManager(json).errorCaptured
 		},
 

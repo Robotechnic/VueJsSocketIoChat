@@ -103,6 +103,7 @@ export default {
 			if (!entries[0].isIntersecting) {
 				return
 			}
+
 			console.log(entries[0])
 
 			const {json, error} = await this.$customFetch("/api/messages/messagesBefore",{

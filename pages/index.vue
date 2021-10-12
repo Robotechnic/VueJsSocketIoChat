@@ -76,6 +76,7 @@ export default {
 				message,
 				to: this.$refs.messagesView.friend.userId ?? 0
 			})
+			this.$refs.messagesView.scrollToBottom()
 			this.$refs.messagesView.addMessage({
 				message,
 				creation: Date.now(),

@@ -24,7 +24,7 @@
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
-    "mariadb": "^2.5.4",
+    "mariadb": "^2.5.5",
     "ms": "^3.0.0-canary.1",
     "nuxt": "^2.15.7",
     "socket.io": "^4.2.0",

@@ -41,6 +41,6 @@
     "node-sass": "^6.0.1",
     "prettier": "^2.3.2",
     "sass-loader": "^10.1.1",
-    "webpack": "^4.46.0"
+    "webpack": "^5.75.0"
   }
 }
